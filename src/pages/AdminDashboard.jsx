@@ -1,10 +1,10 @@
-import { useEffect, useState, useRef } from 'react';
-import { FiRefreshCw, FiMapPin, FiTrendingUp, FiZap, FiCheckCircle, FiClock, FiAlertCircle } from 'react-icons/fi';
+import { useEffect, useState } from 'react';
+import { FiRefreshCw, FiMapPin, FiTrendingUp, FiZap, FiCheckCircle, FiClock, FiAlertCircle, FiX, FiArrowUp, FiPhone } from 'react-icons/fi';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Filler } from 'chart.js';
 import { Doughnut, Bar, Line } from 'react-chartjs-2';
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { getAnalytics, updateComplaintStatus } from '../services/firebaseService';
+import { getAnalytics, updateComplaintStatus } from '../services/dbService';
 import { CATEGORY_COLORS, STATUS_COLORS, DEPARTMENTS } from '../data/mockData';
 import LoadingSpinner from '../components/LoadingSpinner';
 import toast from 'react-hot-toast';
@@ -87,9 +87,40 @@ function AIInsightPanel({ complaints }) {
   );
 }
 
+function ComplaintDetailModal({ complaint, onClose, onStatusUpdate, updating }) {
+  if (!complaint) return null;
+  const dept = DEPARTMENTS[complaint.department] || DEPARTMENTS.Other;
+  const cat = CATEGORY_COLORS[complaint.category] || CATEGORY_COLORS.Other;
+  const st = STATUS_COLORS[complaint.status] || STATUS_COLORS.Pending;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+      <div className="glass-dark rounded-2xl border border-civic-500/30 w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="flex items-start justify-between p-6 border-b border-slate-700/50">
+          <div><p className="text-civic-400 font-mono text-sm mb-1">{complaint.id}</p><h2 className="text-xl font-bold text-white">{complaint.title}</h2></div>
+          <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors p-1"><FiX size={20} /></button>
+        </div>
+        <div className="p-6 space-y-5">
+          <div className="flex flex-wrap gap-2">
+            <span className={`badge ${cat.badge}`}>{dept.icon} {complaint.category}</span>
+            <span className={`badge ${st.badge}`}><span className={`w-1.5 h-1.5 rounded-full ${st.dot} inline-block`} />{complaint.status}</span>
+            <span className="badge bg-slate-700/50 text-slate-300 border border-slate-600/50"><FiArrowUp size={11} /> {complaint.upvotes} upvotes</span>
+          </div>
+          <div><h4 className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Full Description</h4><p className="text-slate-200 text-sm leading-relaxed bg-slate-800/50 rounded-xl p-4 border border-slate-700/30">{complaint.description}</p></div>
+          {complaint.aiSummary && (<div className="bg-civic-900/30 border border-civic-500/20 rounded-xl p-4"><h4 className="text-civic-400 text-xs font-semibold uppercase tracking-wider mb-2">🤖 AI Summary</h4><p className="text-slate-300 text-sm">{complaint.aiSummary}</p>{complaint.confidence && (<div className="mt-3 flex items-center gap-3"><div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-civic-500 to-sky-500 rounded-full" style={{ width: `${complaint.confidence}%` }} /></div><span className="text-civic-400 font-mono text-sm font-bold">{complaint.confidence}%</span></div>)}</div>)}
+          {complaint.location?.address && (<div><h4 className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">📍 Location</h4><p className="text-slate-200 text-sm flex items-center gap-2"><FiMapPin className="text-civic-400" size={14} />{complaint.location.address}</p></div>)}
+          <div><h4 className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">🏛️ Department</h4><div className="flex items-center gap-3 bg-slate-800/50 rounded-xl p-3 border border-slate-700/30"><span className="text-2xl">{dept.icon}</span><div><p className="text-white font-semibold text-sm">{dept.name}</p><p className="text-slate-400 text-xs flex items-center gap-2 mt-0.5"><FiPhone size={10} /> {dept.phone} • {dept.email}</p></div></div></div>
+          <div className="grid grid-cols-2 gap-4"><div><h4 className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">Created</h4><p className="text-slate-300 text-sm">{new Date(complaint.createdAt).toLocaleString('en-IN')}</p></div><div><h4 className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">Updated</h4><p className="text-slate-300 text-sm">{new Date(complaint.updatedAt).toLocaleString('en-IN')}</p></div></div>
+          <div className="pt-2 border-t border-slate-700/50"><h4 className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-3">Update Status</h4><div className="flex gap-2">{['Pending', 'In Progress', 'Resolved'].map(s => (<button key={s} disabled={updating || complaint.status === s} onClick={() => onStatusUpdate(complaint.id, s)} className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${complaint.status === s ? s === 'Resolved' ? 'bg-green-500/30 text-green-300 border border-green-500/40' : s === 'In Progress' ? 'bg-blue-500/30 text-blue-300 border border-blue-500/40' : 'bg-yellow-500/30 text-yellow-300 border border-yellow-500/40' : 'bg-slate-800/60 text-slate-400 border border-slate-700/50 hover:border-civic-500/40 hover:text-white'}`}>{s}</button>))}</div></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [updating, setUpdating] = useState(null);
 
   const load = async () => {
@@ -176,15 +207,15 @@ export default function AdminDashboard() {
 
   return (
     <div className="page-wrapper">
-      <div className="page-container">
+      <div className="page-container max-w-[1600px] px-6 md:px-12">
         {/* Header */}
         <div className="flex items-center justify-between mb-8 animate-fade-in flex-wrap gap-4">
           <div>
-            <h1 className="text-4xl font-black text-white">🏛️ Admin Dashboard</h1>
-            <p className="text-slate-400 mt-1">Real-time civic intelligence for government officials</p>
+            <h1 className="text-5xl font-black text-white tracking-tight">🏛️ Admin Dashboard</h1>
+            <p className="text-slate-400 mt-2 text-lg">Global civic intelligence & real-time monitoring</p>
           </div>
-          <button onClick={load} className="btn-secondary flex items-center gap-2 text-sm">
-            <FiRefreshCw size={14} /> Refresh Data
+          <button onClick={load} className="btn-secondary flex items-center gap-2 px-6 py-3">
+            <FiRefreshCw size={16} /> Refresh Intelligence
           </button>
         </div>
 
@@ -208,13 +239,13 @@ export default function AdminDashboard() {
             <div className="p-4 border-b border-slate-700/50">
               <h3 className="text-white font-semibold flex items-center gap-2">
                 <FiMapPin className="text-civic-400" /> Issue Heatmap
-                <span className="text-xs text-slate-500 font-normal ml-1">– Pune region</span>
+                <span className="text-xs text-slate-500 font-normal ml-1">– Real-time locations</span>
               </h3>
             </div>
-            <div style={{ height: '380px' }}>
+            <div style={{ height: '500px' }}>
               <MapContainer
-                center={[18.5204, 73.8567]}
-                zoom={13}
+                center={[20, 78]}
+                zoom={5}
                 style={{ height: '100%', width: '100%' }}
                 zoomControl={true}
               >
@@ -310,7 +341,7 @@ export default function AdminDashboard() {
         {/* Complaints Table */}
         <div className="card animate-fade-in">
           <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-            <h3 className="text-white font-semibold">All Complaints</h3>
+            <div><h3 className="text-white font-semibold">Community Reports</h3><p className="text-slate-500 text-xs mt-0.5">Click any report to view full details</p></div>
             <span className="text-slate-400 text-sm">{complaints.length} total records</span>
           </div>
           <div className="overflow-x-auto">
@@ -324,7 +355,7 @@ export default function AdminDashboard() {
               </thead>
               <tbody>
                 {complaints.map((c) => (
-                  <tr key={c.id} className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
+                  <tr key={c.id} className="border-b border-slate-800/50 hover:bg-civic-500/5 transition-colors cursor-pointer" onClick={() => setSelectedComplaint(c)}>
                     <td className="py-3 pr-4 font-mono text-civic-400 text-xs whitespace-nowrap">{c.id}</td>
                     <td className="py-3 pr-4 text-slate-200 max-w-[160px] truncate">{c.title}</td>
                     <td className="py-3 pr-4">
@@ -340,7 +371,7 @@ export default function AdminDashboard() {
                     </td>
                     <td className="py-3 pr-4 text-slate-400 text-xs">{c.upvotes}</td>
                     <td className="py-3 pr-4 text-slate-400 text-xs max-w-[200px] truncate">{c.aiSummary}</td>
-                    <td className="py-3">
+                    <td className="py-3" onClick={e => e.stopPropagation()}>
                       <select
                         value={c.status}
                         onChange={(e) => handleStatusUpdate(c.id, e.target.value)}
@@ -358,6 +389,8 @@ export default function AdminDashboard() {
             </table>
           </div>
         </div>
+
+        {selectedComplaint && <ComplaintDetailModal complaint={selectedComplaint} onClose={() => setSelectedComplaint(null)} onStatusUpdate={handleStatusUpdate} updating={updating} />}
       </div>
     </div>
   );

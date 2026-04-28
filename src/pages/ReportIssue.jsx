@@ -5,21 +5,40 @@ import PhotoUpload from '../components/PhotoUpload';
 import AIConfidenceBadge from '../components/AIConfidenceBadge';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { classifyIssue, summarizeComplaint, routeToDepartment } from '../services/aiService';
-import { submitComplaint } from '../services/firebaseService';
+import { submitComplaint } from '../services/dbService';
 import { isDemoMode } from '../services/aiService';
 import toast from 'react-hot-toast';
 
 const STEPS = ['Details', 'AI Analysis', 'Confirm'];
 
+const RECOMMENDED_LOCATIONS = [
+  'MG Road, Pune',
+  'Connaught Place, New Delhi',
+  'Marine Drive, Mumbai',
+  'Indiranagar, Bengaluru',
+  'Hitech City, Hyderabad',
+  'Salt Lake, Kolkata',
+  'Kothrud, Pune',
+  'Baner, Pune',
+  'Bandra West, Mumbai',
+  'Park Street, Kolkata',
+];
+
 export default function ReportIssue() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [file, setFile] = useState(null);
-  const [form, setForm] = useState({ title: '', description: '', location: '' });
+  const [form, setForm] = useState({
+    title: '',
+    description: '',
+    location: '',
+    proposal: '', // New fix proposal field
+  });
   const [aiResult, setAiResult] = useState(null);
   const [aiSummary, setAiSummary] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(null);
+  const [showLocations, setShowLocations] = useState(false);
 
   const handleChange = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
@@ -79,11 +98,14 @@ export default function ReportIssue() {
   if (submitted) {
     return (
       <div className="page-wrapper">
-        <div className="page-container max-w-xl mx-auto text-center animate-fade-in">
-          <div className="w-24 h-24 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/30">
-            <span className="text-5xl">✅</span>
+        <div className="page-container max-w-xl mx-auto text-center animate-fade-in py-12">
+          <div className="relative inline-block mb-8">
+            <div className="absolute inset-0 bg-green-500 rounded-full blur-2xl opacity-20 animate-pulse" />
+            <div className="relative w-32 h-32 bg-gradient-to-br from-green-500/30 to-green-600/10 rounded-full flex items-center justify-center border-2 border-green-500/50 animate-float-fast shadow-glow-green">
+              <span className="text-6xl animate-bounce">✅</span>
+            </div>
           </div>
-          <h1 className="text-3xl font-black text-white mb-2">Complaint Submitted!</h1>
+          <h1 className="text-5xl font-black text-white mb-3 tracking-tight animate-slide-up">Issue Reported!</h1>
           <p className="text-slate-400 mb-6">Your issue has been recorded and routed to the appropriate department.</p>
           <div className="card text-left mb-6">
             <div className="flex justify-between items-center mb-2">
@@ -163,8 +185,40 @@ export default function ReportIssue() {
               <textarea name="description" value={form.description} onChange={handleChange} rows={4} className="input resize-none" placeholder="Describe the issue in detail – location, severity, how long it's been there..." />
             </div>
             <div>
+              <label className="text-slate-300 text-sm font-medium block mb-2">💡 Fix Proposal (optional)</label>
+              <textarea name="proposal" value={form.proposal} onChange={handleChange} rows={2} className="input resize-none" placeholder="Got a solution? Suggest it here (e.g. use concrete instead of clay)..." />
+            </div>
+            <div className="relative">
               <label className="text-slate-300 text-sm font-medium block mb-2"><FiMapPin className="inline mr-1 text-civic-400" />Location / Address</label>
-              <input name="location" value={form.location} onChange={handleChange} className="input" placeholder="e.g. MG Road, near Bus Stop 12, Pune" />
+              <input 
+                name="location" 
+                value={form.location} 
+                onChange={(e) => {
+                  handleChange(e);
+                  setShowLocations(true);
+                }} 
+                className="input" 
+                placeholder="Type your area or landmark..." 
+                onFocus={() => setShowLocations(true)} 
+              />
+              {showLocations && form.location && (
+                <div className="absolute left-0 right-0 top-full mt-1 z-20 glass-dark rounded-xl border border-slate-700 max-h-52 overflow-y-auto shadow-2xl">
+                  <p className="text-[10px] text-slate-500 px-3 pt-2 pb-1 font-semibold uppercase tracking-wider">📍 Accurate Recommendations</p>
+                  {/* In a real app, this would call a Geocoding API (e.g., Google Places or OpenStreetMap) */}
+                  {RECOMMENDED_LOCATIONS
+                    .filter(loc => loc.toLowerCase().includes(form.location.toLowerCase()))
+                    .map(loc => (
+                    <button key={loc} type="button"
+                      className="w-full text-left px-3 py-2.5 text-sm text-slate-300 hover:bg-civic-500/10 hover:text-white transition-all flex items-center gap-2 border-b border-slate-700/30 last:border-0"
+                      onClick={() => { setForm(p => ({ ...p, location: loc })); setShowLocations(false); }}>
+                      <FiMapPin size={12} className="text-civic-400 shrink-0" /> {loc}
+                    </button>
+                  ))}
+                  {RECOMMENDED_LOCATIONS.filter(loc => loc.toLowerCase().includes(form.location.toLowerCase())).length === 0 && (
+                    <div className="px-3 py-3 text-xs text-slate-500 italic">No matching landmarks found. Continue typing your full address.</div>
+                  )}
+                </div>
+              )}
             </div>
             <button
               onClick={runAI}
@@ -178,30 +232,48 @@ export default function ReportIssue() {
 
         {/* Step 1: Loading */}
         {step === 1 && (
-          <div className="card animate-fade-in">
+          <div className="card animate-glow relative overflow-hidden p-12">
+            <div className="absolute inset-x-0 top-0 h-1 bg-civic-500 animate-scan z-10" />
             <LoadingSpinner text="AI is classifying your complaint..." size="lg" />
-            <div className="text-center mt-4 space-y-2">
-              <p className="text-slate-400 text-sm">🔍 Identifying issue category...</p>
-              <p className="text-slate-500 text-xs">🏢 Routing to correct department...</p>
-              <p className="text-slate-600 text-xs">📝 Generating summary for officials...</p>
+            <div className="text-center mt-6 space-y-3 relative z-10">
+              <p className="text-civic-400 font-bold animate-pulse">🔍 IDENTIFYING CATEGORY...</p>
+              <div className="flex justify-center gap-1">
+                {[0, 1, 2, 3].map(i => (
+                  <div key={i} className="w-1.5 h-1.5 bg-civic-500 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.2}s` }} />
+                ))}
+              </div>
+              <p className="text-slate-500 text-xs">🏢 CROSS-REFERENCING DEPARTMENTS</p>
+              <p className="text-slate-600 text-xs">📝 OPTIMISING SUMMARY FOR OFFICIALS</p>
             </div>
           </div>
         )}
 
         {/* Step 2: Confirm */}
         {step === 2 && aiResult && (
-          <div className="space-y-5 animate-slide-up">
-            {/* AI Result */}
-            <AIConfidenceBadge
-              category={aiResult.category}
-              confidence={aiResult.confidence}
-              reasoning={aiResult.reasoning}
-            />
+          <div className="space-y-6 animate-slide-up">
+            {/* AI Result with Solution Glow */}
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-civic-500 to-sky-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200 animate-glow" />
+              <div className="relative">
+                <AIConfidenceBadge
+                  category={aiResult.category}
+                  confidence={aiResult.confidence}
+                  reasoning={aiResult.reasoning}
+                />
+              </div>
+            </div>
 
-            {/* AI Summary */}
-            <div className="card">
-              <p className="text-slate-400 text-sm font-medium mb-2">🤖 AI-Generated Summary</p>
-              <p className="text-white font-medium leading-relaxed">{aiSummary}</p>
+            {/* AI Summary Reveal */}
+            <div className="card bg-slate-900/80 border-civic-500/20 animate-shimmer">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-6 h-6 bg-civic-500/20 rounded-lg flex items-center justify-center">
+                  <FiZap size={12} className="text-civic-400" />
+                </div>
+                <p className="text-civic-400 text-xs font-black uppercase tracking-widest">AI Action Plan</p>
+              </div>
+              <p className="text-white text-lg font-medium leading-relaxed italic">
+                "{aiSummary}"
+              </p>
             </div>
 
             {/* Your complaint preview */}

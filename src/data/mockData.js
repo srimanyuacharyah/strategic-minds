@@ -40,10 +40,14 @@ export const MOCK_COMPLAINTS = [
     description: 'No water supply for 4 days in Sector 7, Block B. Multiple families affected. Children and elderly are suffering.',
     category: 'Water', status: 'Pending',
     location: { lat: 18.5314, lng: 73.8446, address: 'Sector 7, Pune' },
-    aiSummary: 'Water supply cut off for 4 days in Sector 7, affecting multiple families.',
-    confidence: 99, department: 'Water',
-    createdAt: new Date(Date.now() - 2*86400000).toISOString(),
-    updatedAt: new Date(Date.now() - 86400000).toISOString(), upvotes: 67,
+    confidence: 99, department: 'Water', upvotes: 12,
+    witnesses: 2,
+    isVerified: false,
+    proposals: [],
+    escalationLevel: 0,
+    createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+    aiSummary: 'Localized water supply interruption affecting multi-story building.',
   },
   {
     id: 'CMP-2024-003',
@@ -55,6 +59,7 @@ export const MOCK_COMPLAINTS = [
     confidence: 95, department: 'Electricity',
     createdAt: new Date(Date.now() - 10*86400000).toISOString(),
     updatedAt: new Date(Date.now() - 86400000).toISOString(), upvotes: 89,
+    resolution: { comment: 'Lights replaced and circuit repaired.', date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), images: ['url1'] }
   },
   {
     id: 'CMP-2024-004',
@@ -62,10 +67,16 @@ export const MOCK_COMPLAINTS = [
     description: 'Waste piling up on street corners attracting dogs and rats. Strong smell affecting residents.',
     category: 'Waste', status: 'Pending',
     location: { lat: 18.5415, lng: 73.8550, address: 'Laxmi Nagar, Pune' },
-    aiSummary: 'Garbage not collected for 10 days in Laxmi Nagar causing health hazards.',
-    confidence: 98, department: 'Waste',
-    createdAt: new Date(Date.now() - 3*86400000).toISOString(),
-    updatedAt: new Date(Date.now() - 3*86400000).toISOString(), upvotes: 45,
+    confidence: 98, department: 'Waste', upvotes: 45,
+    witnesses: 12,
+    isVerified: true,
+    proposals: [
+      { text: "Install extra lighting to prevent future illegal dumping.", upvotes: 30, user: "Sneha P." }
+    ],
+    escalationLevel: 1,
+    createdAt: new Date(Date.now() - 16 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    aiSummary: 'Health hazard due to accumulated uncollected organic and plastic waste.',
   },
   {
     id: 'CMP-2024-005',
@@ -95,10 +106,16 @@ export const MOCK_COMPLAINTS = [
     description: 'Builder dumping construction debris on public land near the park. Sharp materials dangerous to children.',
     category: 'Waste', status: 'Pending',
     location: { lat: 18.5350, lng: 73.8700, address: 'Central Park, Pune' },
-    aiSummary: 'Illegal construction debris dumping at Central Park; safety hazard for children.',
-    confidence: 91, department: 'Waste',
-    createdAt: new Date(Date.now() - 4*86400000).toISOString(),
-    updatedAt: new Date(Date.now() - 4*86400000).toISOString(), upvotes: 23,
+    confidence: 91, department: 'Waste', upvotes: 24,
+    witnesses: 5,
+    isVerified: true,
+    proposals: [
+      { text: "Use industrial-grade sealant for the cracks.", upvotes: 12, user: "Amit K." }
+    ],
+    escalationLevel: 0,
+    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+    aiSummary: 'Major road surface damage creating hazard for two-wheelers.',
   },
   {
     id: 'CMP-2024-008',

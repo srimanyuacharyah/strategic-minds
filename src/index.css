@@ -71,10 +71,18 @@
     @apply min-h-screen pt-20 pb-12 px-4;
   }
   .page-container {
-    @apply max-w-6xl mx-auto;
+    @apply max-w-[1600px] mx-auto px-4 md:px-8;
   }
   .gradient-text {
     @apply bg-gradient-to-r from-civic-400 to-sky-400 bg-clip-text text-transparent;
+  }
+  .glow-text {
+    text-shadow: 0 0 15px rgba(99,102,241,0.5);
+    animation: text-pulse 4s infinite ease-in-out;
+  }
+  @keyframes text-pulse {
+    0%, 100% { text-shadow: 0 0 15px rgba(99,102,241,0.4); }
+    50% { text-shadow: 0 0 30px rgba(14,165,233,0.7); }
   }
   .shimmer-bg {
     background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
@@ -118,15 +126,55 @@ input[type="range"] {
   transform: scale(1.01);
 }
 
-/* Animated gradient border */
-.gradient-border {
-  position: relative;
-  background: linear-gradient(#0f172a, #0f172a) padding-box,
-              linear-gradient(135deg, #6366f1, #0ea5e9) border-box;
-  border: 2px solid transparent;
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 5px rgba(99,102,241,0.2); border-color: rgba(99,102,241,0.2); }
+  50% { box-shadow: 0 0 20px rgba(99,102,241,0.5); border-color: rgba(99,102,241,0.6); }
+}
+@keyframes scan-line {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(400%); }
+}
+@keyframes float-fast {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-10px) rotate(2deg); }
 }
 
-/* Timeline */
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+.animate-glow {
+  animation: glow-pulse 3s infinite ease-in-out;
+}
+.animate-scan {
+  animation: scan-line 2s infinite linear;
+}
+@keyframes bridge-flow {
+  0% { transform: translateX(-100%) scale(0.5); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateX(500%) scale(1.2); opacity: 0; }
+}
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(80px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(80px) rotate(-360deg); }
+}
+
+.animate-bridge {
+  animation: bridge-flow 6s infinite linear;
+}
+.animate-orbit {
+  animation: orbit 10s infinite linear;
+}
+.animate-reverse-orbit {
+  animation: orbit 15s infinite linear reverse;
+}
+
 .timeline-item::before {
   content: '';
   position: absolute;
