@@ -1,24 +1,24 @@
-What is happening with CivicAI
+# What is happening with CivicAI
 
 We have made some big leaps today. The app is not just a bunch of files anymore, it is a living project running right on your machine.
 
-Things we have finished
-We got all the files back from GitHub and fixed those annoying Git merge errors. Everything is now perfectly in sync.
-The app is officially up and running. You can see it at http://localhost:5173.
-We have moved over to Supabase for the database and Gemini AI for the smarts. It is a much more modern setup.
-I have added a few tricks so that when others push code, your Antigravity will help you stay updated automatically.
-The main dashboard, reporting tool, and status trackers are all looking great.
-We added a new AI chatbot to help people with their questions instantly.
-We finished the login and signup pages so people can now create accounts.
-We added a resolution gallery to show off all the fixed issues with before and after photos.
-We updated the app to use Gemini AI, making the issue analysis much faster and smarter.
-Our latest update fixed the environment settings and merged all these new features into the main project.
+## Things we have finished
+- **Multilingual Support**: The app now speaks your language! We've added full support for **English, Hindi, and Kannada** to make it accessible to everyone.
+- **AI-Powered Issue Reporting**: Reporting an issue is now smarter. We've added **AI classification** and **Voice Input** to make reporting seamless and fast.
+- **Service Navigator**: A brand new tool to help you find the right government schemes and bodies for your needs.
+- **Real-time Metrics**: The landing page and dashboard now show live performance metrics, tracking resolved complaints and reports in real-time.
+- **Enhanced Admin Console**: A more powerful dashboard for administrators to manage and track issues more effectively.
+- **Database & AI Core**: We have fully transitioned to **Supabase** for our database and **Gemini AI** for intelligent issue analysis.
+- **Automated Sync**: I have added a few tricks so that when others push code, your Antigravity will help you stay updated automatically.
+- **Login & Security**: Finished the login and signup pages with improved security, including password strength validation.
+- **Unified Resolution Tracking**: Issue resolution tracking is now integrated directly into the core dashboard for better visibility.
 
-What we are working on right now
-We have the Supabase files ready, now we just need to make sure data is actually flowing between the app and the database perfectly.
-We are making sure that when you report an issue, it actually goes through correctly.
+## What we are working on right now
+- **Data Flow Optimization**: Ensuring that all the new multilingual data and AI reports are flowing perfectly between the app and Supabase.
+- **Mobile Responsiveness**: Fine-tuning the layout to ensure the new features look stunning on all devices.
+- **UI Polishing**: Refining the design of the new Admin Console and Service Navigator.
 
-What is coming up next
-We are looking into adding a neighborhood health score and a witness system to make this app really stand out.
-We are making sure it looks just as good on a phone as it does on your computer.
-
+## What is coming up next
+- **Neighborhood Health Score**: Developing a system to track and display the overall health and safety of different neighborhoods.
+- **Witness System**: A new feature to allow multiple citizens to vouch for an issue, increasing its priority.
+- **Push Notifications**: Getting alerts when your reported issue is updated or resolved.
