@@ -11,6 +11,16 @@ import toast from 'react-hot-toast';
 
 const STEPS = ['Details', 'AI Analysis', 'Confirm'];
 
+const RECOMMENDED_LOCATIONS = [
+  'MG Road, Pune', 'FC Road, Pune', 'JM Road, Pune', 'Karve Road, Pune',
+  'Sinhagad Road, Pune', 'Baner Road, Pune', 'Hinjewadi IT Park, Pune',
+  'Kothrud, Pune', 'Shivajinagar, Pune', 'Deccan Gymkhana, Pune',
+  'Hadapsar, Pune', 'Viman Nagar, Pune', 'Koregaon Park, Pune',
+  'Aundh, Pune', 'Wakad, Pune', 'Pimpri-Chinchwad, Pune',
+  'Camp Area, Pune', 'Swargate, Pune', 'Katraj, Pune',
+  'Nigdi, Pune', 'Wagholi, Pune', 'Kharadi, Pune',
+];
+
 export default function ReportIssue() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
@@ -20,6 +30,7 @@ export default function ReportIssue() {
   const [aiSummary, setAiSummary] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(null);
+  const [showLocations, setShowLocations] = useState(false);
 
   const handleChange = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
@@ -162,9 +173,23 @@ export default function ReportIssue() {
               <label className="text-slate-300 text-sm font-medium block mb-2">📋 Description <span className="text-red-400">*</span></label>
               <textarea name="description" value={form.description} onChange={handleChange} rows={4} className="input resize-none" placeholder="Describe the issue in detail – location, severity, how long it's been there..." />
             </div>
-            <div>
+            <div className="relative">
               <label className="text-slate-300 text-sm font-medium block mb-2"><FiMapPin className="inline mr-1 text-civic-400" />Location / Address</label>
-              <input name="location" value={form.location} onChange={handleChange} className="input" placeholder="e.g. MG Road, near Bus Stop 12, Pune" />
+              <input name="location" value={form.location} onChange={handleChange} className="input" placeholder="Type or select a location..." onFocus={() => setShowLocations(true)} />
+              {showLocations && (
+                <div className="absolute left-0 right-0 top-full mt-1 z-20 glass-dark rounded-xl border border-slate-700 max-h-52 overflow-y-auto shadow-2xl">
+                  <p className="text-xs text-slate-500 px-3 pt-2 pb-1 font-semibold uppercase tracking-wider">📍 Recommended Locations</p>
+                  {RECOMMENDED_LOCATIONS
+                    .filter(loc => !form.location || loc.toLowerCase().includes(form.location.toLowerCase()))
+                    .map(loc => (
+                    <button key={loc} type="button"
+                      className="w-full text-left px-3 py-2 text-sm text-slate-300 hover:bg-civic-500/10 hover:text-white transition-colors flex items-center gap-2"
+                      onClick={() => { setForm(p => ({ ...p, location: loc })); setShowLocations(false); }}>
+                      <FiMapPin size={12} className="text-civic-400 shrink-0" /> {loc}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <button
               onClick={runAI}
