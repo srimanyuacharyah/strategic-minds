@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FiStar, FiSend, FiZap, FiPhone, FiImage, FiX } from 'react-icons/fi';
 import { analyzeSentiment } from '../services/aiService';
-import { submitFeedback } from '../services/firebaseService';
+import { submitFeedback } from '../services/dbService';
 import { isDemoMode } from '../services/aiService';
 import toast from 'react-hot-toast';
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { FiSearch, FiMapPin, FiClock, FiArrowUp } from 'react-icons/fi';
-import { getComplaints, getComplaintById } from '../services/firebaseService';
+import { getComplaints, getComplaintById } from '../services/dbService';
 import { CATEGORY_COLORS, STATUS_COLORS, DEPARTMENTS } from '../data/mockData';
 import LoadingSpinner from '../components/LoadingSpinner';
 import IssueCard from '../components/IssueCard';
@@ -23,16 +23,37 @@ const TIMELINE_STEPS = [
 ];
 
 function DetailView({ complaint, onBack }) {
+  const [newProposal, setNewProposal] = useState('');
   const cat = CATEGORY_COLORS[complaint.category] || CATEGORY_COLORS.Other;
   const statusOrder = { Pending: 0, 'In Progress': 1, Resolved: 2 };
   const currentStep = statusOrder[complaint.status] ?? 0;
   const dept = DEPARTMENTS[complaint.department] || DEPARTMENTS.Other;
+  
+  const daysOld = Math.floor((Date.now() - new Date(complaint.createdAt).getTime()) / (24 * 60 * 60 * 1000));
+  
+  const openLetter = `Dear ${dept.name},\n\nI am writing to express my deep concern regarding the unresolved issue: "${complaint.title}" (ID: ${complaint.id}), which was reported on ${new Date(complaint.createdAt).toLocaleDateString()}. \n\nIt has been ${daysOld} days since this was first brought to your attention. This issue is causing significant distress to our community. We demand immediate action to resolve this matter and ensure the safety and well-being of our citizens.\n\nSincerely,\nA concerned citizen of CivicAI`;
+
+  const handleShare = () => {
+    const text = encodeURIComponent(`📢 EMERGENCY ESCALATION: This civic issue has been ignored for ${daysOld} days! Check it out on CivicAI. #CivicAI #Governance #TechFusion`);
+    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+  };
 
   return (
     <div className="animate-slide-up space-y-5">
       <button onClick={onBack} className="text-civic-400 hover:text-civic-300 text-sm flex items-center gap-1 transition-colors">
         ← Back to all complaints
       </button>
+
+      {/* Escalation Alerts */}
+      {daysOld >= 15 && complaint.status !== 'Resolved' && (
+        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-center gap-4 animate-pulse">
+          <div className="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center text-red-500 text-2xl shrink-0">🚩</div>
+          <div>
+            <p className="text-red-400 font-bold text-sm uppercase tracking-wider">Public Transparency Flag</p>
+            <p className="text-red-300/70 text-xs">This issue has been flagged in the public feed due to 15+ days of inactivity.</p>
+          </div>
+        </div>
+      )}
 
       <div className="card">
         <div className="flex items-start justify-between gap-3 flex-wrap mb-4">
@@ -53,17 +74,67 @@ function DetailView({ complaint, onBack }) {
         </div>
       </div>
 
-      {/* AI Summary */}
-      <div className="card bg-gradient-to-br from-civic-900/40 to-slate-900/40 border border-civic-500/20">
-        <p className="text-civic-400 font-semibold text-sm mb-2">🤖 AI Summary</p>
-        <p className="text-white font-medium mb-3">{complaint.aiSummary}</p>
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-civic-500 to-sky-400 rounded-full" style={{ width: `${complaint.confidence}%` }} />
-          </div>
-          <span className="text-civic-400 text-xs font-mono font-bold">{complaint.confidence}% confidence</span>
+      {/* Fix Proposals Section */}
+      <div className="card">
+        <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+          💡 Collaborative Fix Proposals
+        </h3>
+        <div className="space-y-3 mb-6">
+          {(complaint.proposals || []).map((prop, i) => (
+            <div key={i} className="p-3 bg-slate-800/40 rounded-xl border border-slate-700/50 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-white text-sm font-medium">{prop.text}</p>
+                <p className="text-[10px] text-slate-500 mt-1">Suggested by <span className="text-civic-400">{prop.user || 'Anonymous'}</span></p>
+              </div>
+              <div className="flex items-center gap-1 text-slate-400 text-xs bg-slate-900 px-2 py-1 rounded-lg">
+                <FiArrowUp size={10} className="text-civic-400" /> {prop.upvotes || 0}
+              </div>
+            </div>
+          ))}
+          {(!complaint.proposals || complaint.proposals.length === 0) && (
+            <p className="text-slate-500 text-xs italic">No solutions proposed yet. Be the first!</p>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <input 
+            value={newProposal}
+            onChange={(e) => setNewProposal(e.target.value)}
+            className="input text-sm flex-1" 
+            placeholder="Suggest a fix (e.g. use concrete gutters)..." 
+          />
+          <button 
+            onClick={() => {
+              if (newProposal) {
+                toast.success('Proposal submitted for community review!');
+                setNewProposal('');
+              }
+            }}
+            className="btn-primary px-4 text-xs font-bold"
+          >
+            Submit Fix
+          </button>
         </div>
       </div>
+
+      {/* Open Letter Generator */}
+      {daysOld >= 30 && complaint.status !== 'Resolved' && (
+        <div className="card bg-gradient-to-r from-red-950/40 to-slate-900/40 border border-red-500/30">
+          <h3 className="text-red-400 font-bold mb-3 flex items-center gap-2">
+            ✉️ 30-Day Auto-Generated Open Letter
+          </h3>
+          <div className="bg-black/40 p-4 rounded-xl border border-slate-800 mb-4">
+            <pre className="text-slate-300 text-xs whitespace-pre-wrap font-serif leading-relaxed">
+              {openLetter}
+            </pre>
+          </div>
+          <button 
+            onClick={handleShare}
+            className="btn-primary w-full py-3 bg-red-600 hover:bg-red-500 shadow-glow flex items-center justify-center gap-2"
+          >
+            🚀 Share Open Letter to Social Media
+          </button>
+        </div>
+      )}
 
       {/* Timeline */}
       <div className="card">

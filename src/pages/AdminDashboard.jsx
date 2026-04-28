@@ -4,7 +4,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearSca
 import { Doughnut, Bar, Line } from 'react-chartjs-2';
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { getAnalytics, updateComplaintStatus } from '../services/firebaseService';
+import { getAnalytics, updateComplaintStatus } from '../services/dbService';
 import { CATEGORY_COLORS, STATUS_COLORS, DEPARTMENTS } from '../data/mockData';
 import LoadingSpinner from '../components/LoadingSpinner';
 import toast from 'react-hot-toast';
@@ -207,15 +207,15 @@ export default function AdminDashboard() {
 
   return (
     <div className="page-wrapper">
-      <div className="page-container">
+      <div className="page-container max-w-[1600px] px-6 md:px-12">
         {/* Header */}
         <div className="flex items-center justify-between mb-8 animate-fade-in flex-wrap gap-4">
           <div>
-            <h1 className="text-4xl font-black text-white">🏛️ Admin Dashboard</h1>
-            <p className="text-slate-400 mt-1">Real-time civic intelligence for government officials</p>
+            <h1 className="text-5xl font-black text-white tracking-tight">🏛️ Admin Dashboard</h1>
+            <p className="text-slate-400 mt-2 text-lg">Global civic intelligence & real-time monitoring</p>
           </div>
-          <button onClick={load} className="btn-secondary flex items-center gap-2 text-sm">
-            <FiRefreshCw size={14} /> Refresh Data
+          <button onClick={load} className="btn-secondary flex items-center gap-2 px-6 py-3">
+            <FiRefreshCw size={16} /> Refresh Intelligence
           </button>
         </div>
 
@@ -239,13 +239,13 @@ export default function AdminDashboard() {
             <div className="p-4 border-b border-slate-700/50">
               <h3 className="text-white font-semibold flex items-center gap-2">
                 <FiMapPin className="text-civic-400" /> Issue Heatmap
-                <span className="text-xs text-slate-500 font-normal ml-1">– Pune region</span>
+                <span className="text-xs text-slate-500 font-normal ml-1">– Real-time locations</span>
               </h3>
             </div>
-            <div style={{ height: '380px' }}>
+            <div style={{ height: '500px' }}>
               <MapContainer
-                center={[18.5204, 73.8567]}
-                zoom={13}
+                center={[20, 78]}
+                zoom={5}
                 style={{ height: '100%', width: '100%' }}
                 zoomControl={true}
               >

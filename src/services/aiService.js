@@ -12,9 +12,21 @@ const MOCK_CLASSIFICATIONS = {
   light: { category: 'Electricity', confidence: 95, reasoning: 'Street light / power issue.' },
   electricity: { category: 'Electricity', confidence: 98, reasoning: 'Direct electricity complaint.' },
   power: { category: 'Electricity', confidence: 97, reasoning: 'Power supply issue.' },
+  battery: { category: 'Hazardous Waste', confidence: 94, reasoning: 'Detected hazardous materials (batteries) in description.' },
+  chemical: { category: 'Hazardous Waste', confidence: 96, reasoning: 'Chemical waste detected.' },
+  toxic: { category: 'Hazardous Waste', confidence: 92, reasoning: 'Toxic materials mentioned.' },
+  phone: { category: 'Electronic Waste (e-waste)', confidence: 92, reasoning: 'Detected electronic components (phone).' },
+  laptop: { category: 'Electronic Waste (e-waste)', confidence: 93, reasoning: 'Electronic waste (laptop) identified.' },
+  electronic: { category: 'Electronic Waste (e-waste)', confidence: 95, reasoning: 'E-waste keywords detected.' },
+  food: { category: 'Organic Waste', confidence: 89, reasoning: 'Detected biodegradable organic matter (food).' },
+  vegetable: { category: 'Organic Waste', confidence: 90, reasoning: 'Organic waste identified.' },
+  organic: { category: 'Organic Waste', confidence: 94, reasoning: 'Explicit organic waste mention.' },
+  plastic: { category: 'Recyclable Waste', confidence: 91, reasoning: 'Recyclable plastic detected.' },
+  bottle: { category: 'Recyclable Waste', confidence: 92, reasoning: 'Recyclable container identified.' },
+  paper: { category: 'Recyclable Waste', confidence: 89, reasoning: 'Recyclable paper materials.' },
+  recyclable: { category: 'Recyclable Waste', confidence: 96, reasoning: 'Explicit recyclable mention.' },
   garbage: { category: 'Waste', confidence: 98, reasoning: 'Solid waste management issue.' },
   waste: { category: 'Waste', confidence: 96, reasoning: 'Waste disposal or collection problem.' },
-  trash: { category: 'Waste', confidence: 97, reasoning: 'Trash collection complaint.' },
 };
 
 function mockClassify(text) {
@@ -22,7 +34,7 @@ function mockClassify(text) {
   for (const [keyword, result] of Object.entries(MOCK_CLASSIFICATIONS)) {
     if (lower.includes(keyword)) return result;
   }
-  const categories = ['Road','Water','Electricity','Waste'];
+  const categories = ['Road','Water','Electricity','Waste','Hazardous Waste', 'Electronic Waste (e-waste)', 'Organic Waste', 'Recyclable Waste'];
   const category = categories[Math.floor(Math.random() * categories.length)];
   return { category, confidence: Math.floor(Math.random() * 10) + 88, reasoning: 'AI classified based on complaint context.' };
 }
@@ -68,7 +80,7 @@ export async function classifyIssue(text) {
     return mockClassify(text);
   }
   try {
-    const prompt = `Classify this citizen complaint into EXACTLY one category from: Road, Water, Electricity, Waste, Other.
+    const prompt = `Classify this citizen complaint into EXACTLY one category from: Road, Water, Electricity, Waste, Hazardous Waste, Electronic Waste (e-waste), Organic Waste, Recyclable Waste, Other.
 Complaint: "${text}"
 Respond in JSON format only: {"category": "...", "confidence": <number 80-100>, "reasoning": "..."}`;
     const raw = await callOpenAI(prompt);

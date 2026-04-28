@@ -4,6 +4,9 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Chatbot from './components/Chatbot';
 import Home from './pages/Home';
+import Landing from './pages/Landing';
+import Signup from './pages/Signup';
+import Login from './pages/Login';
 import ReportIssue from './pages/ReportIssue';
 import StatusTracker from './pages/StatusTracker';
 import Navigator from './pages/Navigator';
@@ -17,7 +20,10 @@ export default function App() {
         <Navbar />
         <main className="flex-1">
           <Routes>
-            <Route path="/"         element={<Home />} />
+            <Route path="/"         element={<Landing />} />
+            <Route path="/home"     element={<Home />} />
+            <Route path="/signup"   element={<Signup />} />
+            <Route path="/login"    element={<Login />} />
             <Route path="/report"   element={<ReportIssue />} />
             <Route path="/status"   element={<StatusTracker />} />
             <Route path="/navigator" element={<Navigator />} />
@@ -26,6 +32,7 @@ export default function App() {
           </Routes>
         </main>
         <Footer />
+        <Chatbot />
         <Chatbot />
       </div>
       <Toaster

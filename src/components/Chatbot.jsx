@@ -63,10 +63,30 @@ function getResponse(input) {
   return `I can help you with:\n\n• 📸 Reporting issues\n• 📊 Tracking complaints\n• 🧭 Finding government services\n• 🏛️ Government schemes\n• 📞 Emergency helplines\n• 💬 Giving feedback\n\nTry asking about any of these topics!`;
 }
 
+const GEMINI_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+
+async function callGemini(prompt) {
+  if (!GEMINI_KEY) return null;
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: `You are CivicAI Assistant, a smart city bridge. Use this knowledge base context if relevant: ${JSON.stringify(KNOWLEDGE_BASE)}. \n\nUser Question: ${prompt}` }] }]
+      })
+    });
+    const data = await response.json();
+    return data.candidates[0].content.parts[0].text;
+  } catch (e) {
+    console.error('Gemini error:', e);
+    return null;
+  }
+}
+
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'bot', text: '👋 Hi! I\'m CivicAI Assistant. How can I help you today?\n\nChoose a topic or type your question:', time: new Date() }
+    { role: 'bot', text: '👋 Hi! I\'m CivicAI Assistant. I\'m powered by Gemini AI to help you with anything related to our city services!\n\nHow can I help you today?', time: new Date() }
   ]);
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
@@ -76,18 +96,18 @@ export default function Chatbot() {
     messagesEnd.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, typing]);
 
-  const sendMessage = (text) => {
+  const sendMessage = async (text) => {
     if (!text.trim()) return;
     const userMsg = { role: 'user', text: text.trim(), time: new Date() };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setTyping(true);
 
-    setTimeout(() => {
-      const response = getResponse(text);
-      setMessages(prev => [...prev, { role: 'bot', text: response, time: new Date() }]);
-      setTyping(false);
-    }, 600 + Math.random() * 800);
+    const geminiResponse = await callGemini(text);
+    const response = geminiResponse || getResponse(text);
+    
+    setMessages(prev => [...prev, { role: 'bot', text: response, time: new Date() }]);
+    setTyping(false);
   };
 
   const handleSubmit = (e) => {
