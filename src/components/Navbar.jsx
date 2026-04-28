@@ -1,24 +1,25 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FiMenu, FiX, FiShield, FiLogOut, FiUser, FiZap } from 'react-icons/fi';
+import { FiMenu, FiX, FiLogOut, FiUser, FiZap, FiGlobe } from 'react-icons/fi';
 import { supabase } from '../config/supabase';
 import toast from 'react-hot-toast';
-
-const links = [
-  { path: '/home', label: 'Dashboard' },
-  { path: '/report', label: 'Report Issue' },
-  { path: '/status', label: 'Track Status' },
-  { path: '/navigator', label: 'Find Service' },
-  { path: '/feedback', label: 'Feedback' },
-  { path: '/admin', label: '🏛️ Admin' },
-];
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Navbar() {
+  const { lang, setLang, t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState(null);
+
+  const navLinks = [
+    { path: '/home', label: t('dashboard') },
+    { path: '/report', label: t('reportButton') },
+    { path: '/status', label: t('track') || 'Track Status' },
+    { path: '/navigator', label: t('navigator') || 'Find Service' },
+    { path: '/admin', label: t('admin') || 'Admin' },
+  ];
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -63,7 +64,7 @@ export default function Navbar() {
 
         {/* Desktop Links */}
         <div className="hidden lg:flex items-center gap-6">
-          {links.map(l => (
+          {navLinks.map(l => (
             <Link
               key={l.path}
               to={l.path}
@@ -74,8 +75,20 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Auth Buttons */}
-        <div className="hidden md:flex items-center gap-4">
+        {/* Auth & Lang Buttons */}
+        <div className="hidden md:flex items-center gap-6">
+          <div className="flex items-center gap-2 bg-slate-800/50 p-1 rounded-lg border border-slate-700">
+            {['en', 'hi', 'kn'].map(l => (
+              <button
+                key={l}
+                onClick={() => setLang(l)}
+                className={`px-3 py-1 rounded-md text-xs font-bold uppercase transition-all ${lang === l ? 'bg-civic-600 text-white shadow-glow' : 'text-slate-500 hover:text-slate-300'}`}
+              >
+                {l}
+              </button>
+            ))}
+          </div>
+
           {user ? (
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-slate-300 text-sm font-medium">
@@ -92,16 +105,16 @@ export default function Navbar() {
                 <FiLogOut size={18} />
               </button>
               <Link to="/report" className="btn-primary py-2 px-6 text-base font-bold">
-                Report Issue
+                {t('reportButton')}
               </Link>
             </div>
           ) : (
             <div className="flex items-center gap-3">
               <Link to="/login" className="text-slate-300 hover:text-white font-semibold text-lg transition-colors">
-                Log In
+                {t('login')}
               </Link>
               <Link to="/signup" className="btn-primary py-2 px-6 text-base font-bold">
-                Sign Up
+                {t('signup')}
               </Link>
             </div>
           )}
@@ -120,7 +133,18 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {open && (
         <div className="lg:hidden glass-dark border-t border-slate-700/50 px-4 py-6 flex flex-col gap-4 animate-slide-up">
-          {links.map(l => (
+          <div className="flex justify-center gap-4 mb-4">
+            {['en', 'hi', 'kn'].map(l => (
+              <button
+                key={l}
+                onClick={() => setLang(l)}
+                className={`px-4 py-2 rounded-xl text-sm font-bold uppercase ${lang === l ? 'bg-civic-600 text-white' : 'bg-slate-800 text-slate-500'}`}
+              >
+                {l}
+              </button>
+            ))}
+          </div>
+          {navLinks.map(l => (
             <Link
               key={l.path}
               to={l.path}
@@ -142,13 +166,13 @@ export default function Navbar() {
                 Log Out
               </button>
               <Link to="/report" className="btn-primary w-full text-center text-lg">
-                Report Issue
+                {t('reportButton')}
               </Link>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              <Link to="/login" className="btn-secondary w-full text-center">Log In</Link>
-              <Link to="/signup" className="btn-primary w-full text-center">Sign Up</Link>
+              <Link to="/login" className="btn-secondary w-full text-center">{t('login')}</Link>
+              <Link to="/signup" className="btn-primary w-full text-center">{t('signup')}</Link>
             </div>
           )}
         </div>

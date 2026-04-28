@@ -91,21 +91,34 @@
   }
 }
 
-/* Leaflet map override */
-.leaflet-container {
-  background: #1e293b !important;
-  border-radius: 1rem;
+/* 3D Map Perspective */
+.map-3d-perspective {
+  perspective: 2000px;
+  transform: rotateX(15deg) translateY(-20px);
+  transition: transform 0.5s ease;
+  box-shadow: 
+    0 30px 60px -12px rgba(0,0,0,0.5),
+    0 18px 36px -18px rgba(0,0,0,0.5),
+    0 -12px 36px -8px rgba(99,102,241,0.1);
 }
-.leaflet-tile {
-  filter: brightness(0.6) saturate(0.5) hue-rotate(200deg);
+.map-3d-perspective:hover {
+  transform: rotateX(5deg) translateY(-10px);
 }
-.leaflet-popup-content-wrapper {
-  background: #1e1b4b !important;
-  color: #e2e8f0 !important;
-  border: 1px solid rgba(99,102,241,0.4) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 0 20px rgba(99,102,241,0.3) !important;
+
+.night-map-filter {
+  filter: invert(100%) hue-rotate(180deg) brightness(0.9) contrast(1.2);
 }
+
+/* Dark cursor for light map backgrounds — high-contrast black crosshair */
+#map-light-mode .leaflet-container,
+#map-light-mode .leaflet-interactive,
+#map-light-mode .leaflet-pane,
+#map-light-mode .leaflet-grab,
+#map-light-mode .leaflet-grabbing,
+#map-light-mode .leaflet-marker-icon {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M11 2v9H2v2h9v9h2v-9h9v-2h-9V2z' fill='black' stroke='white' stroke-width='0.5'/%3E%3C/svg%3E") 12 12, crosshair !important;
+}
+
 .leaflet-popup-tip { background: #1e1b4b !important; }
 
 /* Chart.js dark override */

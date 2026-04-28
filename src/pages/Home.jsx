@@ -4,6 +4,7 @@ import { FiAlertCircle, FiCompass, FiMessageSquare, FiBarChart2, FiArrowRight, F
 import StatsCounter from '../components/StatsCounter';
 import IssueCard from '../components/IssueCard';
 import { getComplaints } from '../services/dbService';
+import { useLanguage } from '../context/LanguageContext';
 
 const features = [
   { icon: <FiAlertCircle size={24} />, label: 'Report Issue', desc: 'Submit complaints with photo & location. AI auto-classifies and routes instantly.', path: '/report', color: 'from-orange-500/20 to-red-500/10', border: 'border-orange-500/30', btn: 'Report Now' },
@@ -15,6 +16,7 @@ const features = [
 const TYPING_WORDS = ['Roads', 'Water Supply', 'Electricity', 'Waste', 'Public Services'];
 
 export default function Home() {
+  const { t } = useLanguage();
   const [wordIdx, setWordIdx] = useState(0);
   const [displayed, setDisplayed] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
@@ -60,7 +62,7 @@ export default function Home() {
           </div>
 
           <h1 className="text-6xl md:text-8xl font-black text-white mb-8 leading-[0.9] tracking-tighter">
-            Transform Your<br />
+            {t('transformYour')}<br />
             <span className="gradient-text">{displayed}</span>
             <span className="animate-pulse text-civic-400">|</span>
           </h1>
@@ -71,30 +73,12 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <Link to="/report" className="btn-primary flex items-center gap-3 text-lg px-8 py-4 w-full sm:w-auto justify-center shadow-glow">
-              <FiAlertCircle size={20} /> Report an Issue
+              <FiAlertCircle size={20} /> {t('reportIssue')}
               <FiArrowRight className="ml-1" />
             </Link>
             <Link to="/navigator" className="btn-secondary flex items-center gap-3 text-lg px-8 py-4 w-full sm:w-auto justify-center">
-              <FiCompass size={20} /> Find the Right Service
+              <FiCompass size={20} /> {t('findService')}
             </Link>
-          </div>
-        </div>
-
-        {/* Floating cards */}
-        <div className="hidden xl:flex absolute right-12 top-1/3 flex-col gap-5 animate-float" style={{ animationDelay: '0s' }}>
-          <div className="glass rounded-2xl px-6 py-4 text-sm max-w-[240px] border-civic-500/30">
-            <span className="text-green-400 font-bold text-base">✓ Resolved</span>
-            <p className="text-slate-300 text-sm mt-1">Street light fixed in 2 days</p>
-          </div>
-          <div className="glass rounded-2xl px-6 py-4 text-sm max-w-[240px] border-civic-500/30">
-            <span className="text-blue-400 font-bold text-base">🤖 AI Classified</span>
-            <p className="text-slate-300 text-sm mt-1">Road → PWD Department</p>
-          </div>
-        </div>
-        <div className="hidden xl:block absolute left-12 top-1/2 animate-float" style={{ animationDelay: '2s' }}>
-          <div className="glass rounded-2xl px-6 py-4 text-sm max-w-[240px] border-civic-500/30">
-            <span className="text-yellow-400 font-bold text-base">📊 97% Confidence</span>
-            <p className="text-slate-300 text-sm mt-1">Water supply issue detected</p>
           </div>
         </div>
       </section>
@@ -144,11 +128,11 @@ export default function Home() {
         <section className="max-w-[1600px] mx-auto px-6 py-20">
           <div className="flex items-center justify-between mb-10">
             <div>
-              <h2 className="text-4xl font-black text-white">Recent Community Reports</h2>
-              <p className="text-slate-400 text-lg mt-2">Live issues reported by citizens across the world</p>
+              <h2 className="text-4xl font-black text-white">{t('recentReports')}</h2>
+              <p className="text-slate-400 text-lg mt-2">{t('heroSub')}</p>
             </div>
             <Link to="/status" className="text-civic-400 hover:text-civic-300 text-lg font-bold flex items-center gap-2 transition-colors">
-              View All <FiArrowRight size={20} />
+              {t('viewAll')} <FiArrowRight size={20} />
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

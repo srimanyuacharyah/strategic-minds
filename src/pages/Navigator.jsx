@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowLeft, FiExternalLink, FiPhone, FiMail, FiChevronRight } from 'react-icons/fi';
 import { NAVIGATOR_FLOW, DEPARTMENTS } from '../data/mockData';
+import { useLanguage } from '../context/LanguageContext';
 
 const GOV_SCHEMES = [
   { name: 'PM Awas Yojana', desc: 'Affordable housing for all – subsidy up to ₹2.67L', url: 'https://pmaymis.gov.in', icon: '🏠', category: 'Housing' },
@@ -30,6 +31,7 @@ const MORE_GOVT_BODIES = [
 ];
 
 export default function Navigator() {
+  const { t } = useLanguage();
   const [path, setPath] = useState(['start']);
   const [activeTab, setActiveTab] = useState('navigator');
   const current = path[path.length - 1];
@@ -43,16 +45,16 @@ export default function Navigator() {
     <div className="page-wrapper">
       <div className="page-container max-w-3xl mx-auto">
         <div className="mb-8 animate-fade-in text-center">
-          <h1 className="text-4xl font-black text-white mb-2">🧭 Find the Right Service</h1>
-          <p className="text-slate-400">Navigate to the correct government department, explore schemes, and contact officials.</p>
+          <h1 className="text-4xl font-black text-white mb-2">🧭 {t('findService')}</h1>
+          <p className="text-slate-400">{t('heroSub')}</p>
         </div>
 
         {/* Tab Switcher */}
         <div className="flex gap-2 mb-8 justify-center animate-slide-up">
           {[
-            { key: 'navigator', label: '🧭 Service Navigator' },
-            { key: 'schemes', label: '🏛️ Government Schemes' },
-            { key: 'bodies', label: '📞 Government Bodies' },
+            { key: 'navigator', label: `🧭 ${t('serviceNavigator')}` },
+            { key: 'schemes', label: `🏛️ ${t('govSchemes')}` },
+            { key: 'bodies', label: `📞 ${t('govBodies')}` },
           ].map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
               className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === tab.key ? 'bg-civic-600 text-white shadow-glow' : 'glass text-slate-400 hover:text-white border border-slate-700/50 hover:border-civic-500/40'}`}>
@@ -127,8 +129,8 @@ export default function Navigator() {
                 )}
 
                 <div className="flex gap-3">
-                  <button onClick={reset} className="btn-secondary flex-1">Start Over</button>
-                  <Link to="/report" className="btn-primary flex-1 text-center">Report This Issue</Link>
+                  <button onClick={reset} className="btn-secondary flex-1">{t('startOver')}</button>
+                  <Link to="/report" className="btn-primary flex-1 text-center">{t('reportThisIssue')}</Link>
                 </div>
               </div>
             )}

@@ -13,9 +13,12 @@ import Navigator from './pages/Navigator';
 import Feedback from './pages/Feedback';
 import AdminDashboard from './pages/AdminDashboard';
 
+import { LanguageProvider } from './context/LanguageContext';
+
 export default function App() {
   return (
-    <BrowserRouter>
+    <LanguageProvider>
+      <BrowserRouter>
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-1">
@@ -50,6 +53,7 @@ export default function App() {
           error:   { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
         }}
       />
-    </BrowserRouter>
+      </BrowserRouter>
+    </LanguageProvider>
   );
 }

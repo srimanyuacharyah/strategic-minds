@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FiRefreshCw, FiMapPin, FiTrendingUp, FiZap, FiCheckCircle, FiClock, FiAlertCircle, FiX, FiArrowUp, FiPhone } from 'react-icons/fi';
+import { FiRefreshCw, FiMapPin, FiTrendingUp, FiZap, FiCheckCircle, FiClock, FiAlertCircle, FiX, FiArrowUp, FiPhone, FiSearch } from 'react-icons/fi';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Filler } from 'chart.js';
 import { Doughnut, Bar, Line } from 'react-chartjs-2';
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
@@ -8,6 +8,7 @@ import { getAnalytics, updateComplaintStatus } from '../services/dbService';
 import { CATEGORY_COLORS, STATUS_COLORS, DEPARTMENTS } from '../data/mockData';
 import LoadingSpinner from '../components/LoadingSpinner';
 import toast from 'react-hot-toast';
+import { useLanguage } from '../context/LanguageContext';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Filler);
 
@@ -118,10 +119,15 @@ function ComplaintDetailModal({ complaint, onClose, onStatusUpdate, updating }) 
 }
 
 export default function AdminDashboard() {
+  const { t } = useLanguage();
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [updating, setUpdating] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [catFilter, setCatFilter] = useState('All');
+  const [mapMode, setMapMode] = useState('night');
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   const load = async () => {
     setLoading(true);
@@ -136,6 +142,23 @@ export default function AdminDashboard() {
     setUpdating(id);
     await updateComplaintStatus(id, status);
     toast.success(`Status updated to ${status}`);
+    
+    // Simulate Email Notification
+    if (status === 'Resolved') {
+      setTimeout(() => {
+        toast.success('🎉 Resolution email sent to user!', {
+          icon: '📧',
+          duration: 4000,
+        });
+      }, 500);
+    } else {
+      setTimeout(() => {
+        toast.success(`Notification: Status is now ${status}`, {
+          icon: '📧',
+        });
+      }, 500);
+    }
+
     await load();
     setUpdating(null);
   };
@@ -147,6 +170,13 @@ export default function AdminDashboard() {
   );
 
   const { byCategory, byStatus, byDay, total, complaints } = analytics;
+
+  const filteredComplaints = complaints.filter(c => {
+    const matchesSearch = c.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         c.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCat = catFilter === 'All' || c.category === catFilter;
+    return matchesSearch && matchesCat;
+  });
 
   // Chart data
   const doughnutData = {
@@ -211,8 +241,8 @@ export default function AdminDashboard() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8 animate-fade-in flex-wrap gap-4">
           <div>
-            <h1 className="text-5xl font-black text-white tracking-tight">🏛️ Admin Dashboard</h1>
-            <p className="text-slate-400 mt-2 text-lg">Global civic intelligence & real-time monitoring</p>
+            <h1 className="text-5xl font-black text-white tracking-tight">🏛️ {t('admin')}</h1>
+            <p className="text-slate-400 mt-2 text-lg">{t('heroSub')}</p>
           </div>
           <button onClick={load} className="btn-secondary flex items-center gap-2 px-6 py-3">
             <FiRefreshCw size={16} /> Refresh Intelligence
@@ -221,37 +251,124 @@ export default function AdminDashboard() {
 
         {/* Stat Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-slide-up">
-          <StatCard icon={<FiAlertCircle />} label="Total Complaints" value={total} sub="All time" color="civic" />
-          <StatCard icon={<FiClock />} label="Pending Action" value={pending} sub="Needs attention" color="yellow" />
-          <StatCard icon={<FiTrendingUp />} label="In Progress" value={inProgress} sub="Being resolved" color="blue" />
-          <StatCard icon={<FiCheckCircle />} label="Resolved" value={`${resolutionRate}%`} sub={`${resolved} of ${total}`} color="green" />
+          <StatCard icon={<FiAlertCircle />} label={t('reports')} value={total} sub="All time" color="civic" />
+          <StatCard icon={<FiClock />} label={t('pending')} value={pending} sub="Needs attention" color="yellow" />
+          <StatCard icon={<FiTrendingUp />} label={t('inprogress')} value={inProgress} sub="Being resolved" color="blue" />
+          <StatCard icon={<FiCheckCircle />} label={t('resolved')} value={`${resolutionRate}%`} sub={`${resolved} of ${total}`} color="green" />
         </div>
 
-        {/* AI Summary */}
-        <div className="mb-6 animate-slide-up">
-          <AIInsightPanel complaints={complaints} />
+        {/* AI Summary & Strategic Insights */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6 animate-slide-up">
+          <div className="lg:col-span-2">
+            <AIInsightPanel complaints={complaints} />
+          </div>
+          <div className="card bg-gradient-to-br from-blue-600/20 to-sky-500/10 border-blue-500/30">
+            <div className="flex items-center gap-2 mb-3">
+              <FiZap className="text-blue-400" />
+              <span className="text-white font-bold text-sm uppercase tracking-widest">AI Strategic Forecast</span>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-400 text-xs">Risk Level</span>
+                <span className="text-green-400 text-xs font-bold px-2 py-0.5 bg-green-500/10 rounded-full">Low</span>
+              </div>
+              <p className="text-slate-300 text-sm leading-relaxed">
+                Analysis suggests a <span className="text-white font-bold">15% increase</span> in water-related reports next week. Recommend pre-emptive maintenance in Zone 4.
+              </p>
+              <div className="pt-3 border-t border-slate-700/50">
+                <p className="text-blue-400 text-[10px] font-black uppercase mb-2">Budget Recommendation</p>
+                <p className="text-white text-xs font-medium italic">"Shift 5% of Road maintenance fund to Emergency Water Supply."</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Map + Doughnut */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {/* Map */}
           <div className="lg:col-span-2 card p-0 overflow-hidden animate-fade-in">
-            <div className="p-4 border-b border-slate-700/50">
+            <div className="p-4 border-b border-slate-700/50 flex items-center justify-between flex-wrap gap-3">
               <h3 className="text-white font-semibold flex items-center gap-2">
                 <FiMapPin className="text-civic-400" /> Issue Heatmap
                 <span className="text-xs text-slate-500 font-normal ml-1">– Real-time locations</span>
               </h3>
+              {/* Map Mode Switcher */}
+              <div className="flex items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700">
+                {[
+                  { key: 'normal', label: '☀️ Normal', icon: '☀️' },
+                  { key: 'night', label: '🌙 Night', icon: '🌙' },
+                  { key: 'satellite', label: '🛰️ Satellite', icon: '🛰️' },
+                ].map(mode => (
+                  <button
+                    key={mode.key}
+                    onClick={() => setMapMode(mode.key)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+                      mapMode === mode.key
+                        ? mode.key === 'night' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+                        : mode.key === 'satellite' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/30'
+                        : 'bg-civic-600 text-white shadow-lg shadow-civic-500/30'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                    }`}
+                  >
+                    {mode.label}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div style={{ height: '500px' }}>
+            <div 
+              id={mapMode === 'normal' ? 'map-light-mode' : undefined}
+              style={{ height: '600px' }} 
+              className="rounded-3xl overflow-hidden border-4 border-slate-800 shadow-2xl relative"
+              onMouseMove={(e) => {
+                if (mapMode === 'normal') {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+                }
+              }}
+            >
+              {mapMode === 'normal' && (
+                <>
+                  <style>{`
+                    #map-light-mode, #map-light-mode * {
+                      cursor: none !important;
+                    }
+                  `}</style>
+                  <div 
+                    className="absolute pointer-events-none z-[2000] w-5 h-5 bg-black border-2 border-white rounded-full -translate-x-1/2 -translate-y-1/2 flex items-center justify-center"
+                    style={{ left: mousePos.x, top: mousePos.y }}
+                  >
+                    <div className="w-1 h-1 bg-white rounded-full" />
+                  </div>
+                </>
+              )}
+              {/* Mode indicator badge */}
+              <div className={`absolute top-4 right-4 z-[1000] glass px-4 py-2 rounded-xl border font-bold text-xs animate-pulse ${
+                mapMode === 'night' ? 'border-indigo-500/30 text-indigo-300' :
+                mapMode === 'satellite' ? 'border-emerald-500/30 text-emerald-300' :
+                'border-amber-500/30 text-amber-300'
+              }`}>
+                {mapMode === 'night' ? '🌙 NIGHT MODE' : mapMode === 'satellite' ? '🛰️ SATELLITE VIEW' : '☀️ NORMAL MODE'}
+              </div>
               <MapContainer
-                center={[20, 78]}
-                zoom={5}
+                center={[22.5, 82]}
+                zoom={4.5}
                 style={{ height: '100%', width: '100%' }}
                 zoomControl={true}
+                key={mapMode}
               >
                 <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution="© OpenStreetMap"
+                  url={
+                    mapMode === 'night'
+                      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+                      : mapMode === 'satellite'
+                      ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+                      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+                  }
+                  attribution={
+                    mapMode === 'satellite'
+                      ? '&copy; Esri, Maxar, Earthstar Geographics'
+                      : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                  }
                 />
                 {complaints.map(c => c.location?.lat && (
                   <CircleMarker
@@ -259,10 +376,10 @@ export default function AdminDashboard() {
                     center={[c.location.lat, c.location.lng]}
                     radius={Math.min(8 + c.upvotes / 10, 22)}
                     fillColor={CATEGORY_COLORS[c.category]?.hex || '#6366f1'}
-                    color={CATEGORY_COLORS[c.category]?.hex || '#6366f1'}
-                    weight={2}
+                    color={mapMode === 'satellite' ? '#ffffff' : (CATEGORY_COLORS[c.category]?.hex || '#6366f1')}
+                    weight={mapMode === 'satellite' ? 3 : 2}
                     opacity={0.9}
-                    fillOpacity={0.5}
+                    fillOpacity={mapMode === 'satellite' ? 0.7 : 0.5}
                   >
                     <Popup>
                       <div className="text-sm">
@@ -340,9 +457,34 @@ export default function AdminDashboard() {
 
         {/* Complaints Table */}
         <div className="card animate-fade-in">
-          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-            <div><h3 className="text-white font-semibold">Community Reports</h3><p className="text-slate-500 text-xs mt-0.5">Click any report to view full details</p></div>
-            <span className="text-slate-400 text-sm">{complaints.length} total records</span>
+          <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+            <div>
+              <h3 className="text-white font-semibold">{t('reports')}</h3>
+              <p className="text-slate-500 text-xs mt-0.5">{t('all')}</p>
+            </div>
+            
+            <div className="flex items-center gap-3 flex-1 max-w-2xl">
+              <div className="relative flex-1">
+                <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                <input 
+                  type="text" 
+                  placeholder={t('search')} 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="input pl-10 py-2 text-sm w-full"
+                />
+              </div>
+              <select 
+                className="input py-2 text-sm max-w-[150px]"
+                value={catFilter}
+                onChange={(e) => setCatFilter(e.target.value)}
+              >
+                <option value="All">{t('all')}</option>
+                {Object.keys(CATEGORY_COLORS).map(cat => <option key={cat} value={cat}>{cat}</option>)}
+              </select>
+            </div>
+
+            <span className="text-slate-400 text-sm">{filteredComplaints.length} {t('reports')}</span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -354,7 +496,7 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {complaints.map((c) => (
+                {filteredComplaints.map((c) => (
                   <tr key={c.id} className="border-b border-slate-800/50 hover:bg-civic-500/5 transition-colors cursor-pointer" onClick={() => setSelectedComplaint(c)}>
                     <td className="py-3 pr-4 font-mono text-civic-400 text-xs whitespace-nowrap">{c.id}</td>
                     <td className="py-3 pr-4 text-slate-200 max-w-[160px] truncate">{c.title}</td>
@@ -381,6 +523,7 @@ export default function AdminDashboard() {
                         <option>Pending</option>
                         <option>In Progress</option>
                         <option>Resolved</option>
+                        <option>Rejected</option>
                       </select>
                     </td>
                   </tr>

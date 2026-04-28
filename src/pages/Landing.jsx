@@ -3,9 +3,12 @@ import { Link } from 'react-router-dom';
 import { FiArrowRight, FiShield, FiMapPin, FiZap, FiBarChart2, FiUsers } from 'react-icons/fi';
 import StatsCounter from '../components/StatsCounter';
 
+import { useLanguage } from '../context/LanguageContext';
+
 const SERVICES = ['Water Supply', 'Electricity', 'Waste Management', 'Public Services', 'Roads'];
 
 export default function Landing() {
+  const { t } = useLanguage();
   const [typedText, setTypedText] = useState('');
   const [serviceIndex, setServiceIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -42,27 +45,26 @@ export default function Landing() {
         <div className="max-w-full mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full glass border border-civic-500/30 mb-10 animate-float">
             <span className="w-3 h-3 bg-civic-400 rounded-full animate-ping" />
-            <span className="text-civic-300 text-sm font-black uppercase tracking-widest">Live: Building the Digital Bridge</span>
+            <span className="text-civic-300 text-sm font-black uppercase tracking-widest">{t('heroBadge') || 'Live: Building the Digital Bridge'}</span>
           </div>
           
           <h1 className="text-6xl md:text-8xl font-black text-white mb-8 tracking-tighter">
-            Smart Solutions for <br />
+            {t('heroTitle')} <br />
             <span className="gradient-text glow-text min-h-[1.2em] inline-block">
               {typedText}<span className="animate-pulse ml-1">|</span>
             </span>
           </h1>
           
           <p className="text-slate-400 text-xl md:text-3xl max-w-5xl mx-auto mb-14 animate-slide-up font-medium leading-relaxed">
-            Revolutionizing urban governance with <span className="text-white">AI-Powered Accountability</span>. 
-            The intelligent bridge between Citizens & Government.
+            {t('heroSub')}
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 animate-slide-up" style={{ animationDelay: '200ms' }}>
             <Link to="/signup" className="btn-primary w-full sm:w-auto px-12 py-5 text-xl flex items-center justify-center gap-3 group shadow-glow">
-              Join the Movement <FiArrowRight className="group-hover:translate-x-2 transition-transform" />
+              {t('movement') || 'Join the Movement'} <FiArrowRight className="group-hover:translate-x-2 transition-transform" />
             </Link>
             <Link to="/home" className="btn-secondary w-full sm:w-auto px-12 py-5 text-xl">
-              Launch Dashboard
+              {t('dashboardBtn') || 'Launch Dashboard'}
             </Link>
           </div>
         </div>
@@ -163,18 +165,18 @@ export default function Landing() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <FeatureCard 
               icon={<FiZap className="text-civic-400" />}
-              title="AI Classification"
-              description="Our advanced AI automatically categorizes reports into water, waste, roads, and more with 95% accuracy."
+              title={t('feat1Title') || 'AI Classification'}
+              description={t('feat1Desc') || 'Our advanced AI automatically categorizes reports with 95% accuracy.'}
             />
             <FeatureCard 
               icon={<FiMapPin className="text-sky-400" />}
-              title="Smart Geolocation"
-              description="Precise issue tracking with interactive heatmaps, helping officials prioritize high-impact zones."
+              title={t('feat2Title') || 'Smart Geolocation'}
+              description={t('feat2Desc') || 'Precise issue tracking with interactive heatmaps for priority zones.'}
             />
             <FeatureCard 
               icon={<FiShield className="text-accent-400" />}
-              title="Verified Governance"
-              description="Transparent tracking from submission to resolution, ensuring accountability at every step."
+              title={t('feat3Title') || 'Verified Governance'}
+              description={t('feat3Desc') || 'Transparent tracking from submission to resolution.'}
             />
           </div>
         </div>

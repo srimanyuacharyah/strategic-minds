@@ -6,6 +6,7 @@ import { CATEGORY_COLORS, STATUS_COLORS, DEPARTMENTS } from '../data/mockData';
 import LoadingSpinner from '../components/LoadingSpinner';
 import IssueCard from '../components/IssueCard';
 import toast from 'react-hot-toast';
+import { useLanguage } from '../context/LanguageContext';
 
 function timeAgo(iso) {
   const diff = Date.now() - new Date(iso).getTime();
@@ -181,6 +182,7 @@ function DetailView({ complaint, onBack }) {
 }
 
 export default function StatusTracker() {
+  const { t } = useLanguage();
   const [params] = useSearchParams();
   const [searchId, setSearchId] = useState(params.get('id') || '');
   const [complaints, setComplaints] = useState([]);
@@ -201,7 +203,7 @@ export default function StatusTracker() {
   }, [params, complaints]);
 
   const handleSearch = () => {
-    const found = complaints.find(c => c.id.toLowerCase() === searchId.toLowerCase());
+    const found = complaints.find(c => c.id.toLowerCase() === searchId.trim().toLowerCase());
     if (found) setSelected(found);
     else toast.error('Complaint ID not found. Try: CMP-2024-001');
   };
@@ -212,8 +214,8 @@ export default function StatusTracker() {
     <div className="page-wrapper">
       <div className="page-container">
         <div className="mb-8 animate-fade-in">
-          <h1 className="section-title text-4xl">Track Your Complaint</h1>
-          <p className="text-slate-400">Search by complaint ID or browse all reported issues.</p>
+          <h1 className="section-title text-4xl">{t('track')}</h1>
+          <p className="text-slate-400">{t('heroSub')}</p>
         </div>
 
         {selected ? (
@@ -222,7 +224,7 @@ export default function StatusTracker() {
           <>
             {/* Search */}
             <div className="card mb-6 animate-slide-up">
-              <p className="text-slate-300 font-medium mb-3">🔍 Search by Complaint ID</p>
+              <p className="text-slate-300 font-medium mb-3">🔍 {t('search')}</p>
               <div className="flex gap-3">
                 <input
                   value={searchId}
@@ -232,10 +234,9 @@ export default function StatusTracker() {
                   placeholder="e.g. CMP-2024-001"
                 />
                 <button onClick={handleSearch} className="btn-primary px-5 flex items-center gap-2">
-                  <FiSearch /> Search
+                  <FiSearch /> {t('search') || 'Search'}
                 </button>
               </div>
-              <p className="text-slate-500 text-xs mt-2">💡 Try: CMP-2024-001, CMP-2024-002, CMP-2024-003</p>
             </div>
 
             {/* Filter */}
@@ -248,7 +249,9 @@ export default function StatusTracker() {
                     filter === f ? 'bg-civic-600 text-white shadow-glow' : 'glass text-slate-400 hover:text-white border border-slate-700 hover:border-civic-500/40'
                   }`}
                 >
-                  {f} {f === 'All' ? `(${complaints.length})` : `(${complaints.filter(c => c.status === f).length})`}
+                  {/* Use the correct key: 'inprogress' not 'in progress' */}
+                  {f === 'In Progress' ? t('inprogress') : (t(f.toLowerCase()) || f)}{' '}
+                  {f === 'All' ? `(${complaints.length})` : `(${complaints.filter(c => c.status === f).length})`}
                 </button>
               ))}
             </div>

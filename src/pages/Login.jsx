@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../config/supabase';
 import { FiMail, FiLock, FiArrowRight, FiLogIn } from 'react-icons/fi';
 import toast from 'react-hot-toast';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Login() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -36,13 +38,13 @@ export default function Login() {
             <div className="w-16 h-16 bg-civic-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-civic-500/20">
               <FiLogIn className="text-civic-400" size={28} />
             </div>
-            <h1 className="text-3xl font-black text-white">Welcome Back</h1>
-            <p className="text-slate-400 mt-2">Log in to manage your reports</p>
+            <h1 className="text-3xl font-black text-white">{t('login')}</h1>
+            <p className="text-slate-400 mt-2">{t('heroSub')}</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="text-slate-300 text-sm font-medium block mb-2">Email Address</label>
+              <label className="text-slate-300 text-sm font-medium block mb-2">{t('email') || 'Email Address'}</label>
               <div className="relative">
                 <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                 <input 
@@ -57,7 +59,7 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="text-slate-300 text-sm font-medium block mb-2">Password</label>
+              <label className="text-slate-300 text-sm font-medium block mb-2">{t('password') || 'Password'}</label>
               <div className="relative">
                 <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                 <input 
@@ -76,15 +78,15 @@ export default function Login() {
               disabled={loading}
               className="btn-primary w-full py-4 flex items-center justify-center gap-2 group"
             >
-              {loading ? 'Logging in...' : 'Log In'}
+              {loading ? t('loading') : t('login')}
               <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
             </button>
           </form>
 
           <p className="text-center text-slate-400 text-sm mt-6">
-            Don't have an account?{' '}
+            {t('noAccount') || "Don't have an account?"}{' '}
             <Link to="/signup" className="text-civic-400 hover:text-white font-semibold transition-colors">
-              Sign Up
+              {t('signup')}
             </Link>
           </p>
         </div>

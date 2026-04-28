@@ -4,6 +4,7 @@ import { analyzeSentiment } from '../services/aiService';
 import { submitFeedback } from '../services/dbService';
 import { isDemoMode } from '../services/aiService';
 import toast from 'react-hot-toast';
+import { useLanguage } from '../context/LanguageContext';
 
 const HELPLINES = [
   { label: 'Police', number: '100', icon: '🚔' },
@@ -21,6 +22,7 @@ const HELPLINES = [
 ];
 
 export default function Feedback() {
+  const { t } = useLanguage();
   const [rating, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
   const [text, setText] = useState('');
@@ -105,8 +107,8 @@ export default function Feedback() {
     <div className="page-wrapper">
       <div className="page-container">
         <div className="text-center mb-10 animate-fade-in">
-          <h1 className="text-4xl font-black text-white mb-2">💬 Give Feedback</h1>
-          <p className="text-slate-400 max-w-xl mx-auto">Rate your experience. AI analyzes your sentiment to help improve government responsiveness.</p>
+          <h1 className="text-4xl font-black text-white mb-2">💬 {t('giveFeedback')}</h1>
+          <p className="text-slate-400 max-w-xl mx-auto">{t('heroSub')}</p>
           {isDemoMode && <p className="text-civic-400/70 text-xs mt-2">🟢 Demo mode – using mock AI sentiment analysis</p>}
         </div>
 
@@ -130,8 +132,8 @@ export default function Feedback() {
 
               {/* Feedback Text */}
               <div>
-                <label className="text-sm text-slate-300 font-medium block mb-2">Your Feedback *</label>
-                <textarea value={text} onChange={e => setText(e.target.value)} rows={4} placeholder="Describe your experience with the government service..." className="input resize-none" />
+                <label className="text-sm text-slate-300 font-medium block mb-2">{t('yourFeedback')} *</label>
+                <textarea value={text} onChange={e => setText(e.target.value)} rows={4} placeholder={t('yourFeedback')} className="input resize-none" />
               </div>
 
               {/* Photo Upload */}
@@ -162,10 +164,10 @@ export default function Feedback() {
 
               <button type="submit" disabled={loading || !rating || !text.trim()} className="btn-primary w-full flex items-center justify-center gap-2">
                 {loading ? (
-                  <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Analyzing...</>
-                ) : (
-                  <><FiSend size={16} /> Submit Feedback</>
-                )}
+                <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> {t('loading')}</>
+              ) : (
+                <><FiSend size={16} /> {t('submitFeedback')}</>
+              )}
               </button>
             </form>
           </div>
@@ -177,7 +179,7 @@ export default function Feedback() {
                 <div className="w-8 h-8 bg-red-500/20 rounded-lg flex items-center justify-center">
                   <FiPhone size={15} className="text-red-400" />
                 </div>
-                <h3 className="text-white font-semibold text-sm">Government Helplines</h3>
+                <h3 className="text-white font-semibold text-sm">📞 {t('govBodies')}</h3>
               </div>
               <p className="text-slate-500 text-xs mb-4">Toll-free 24/7 helpline numbers</p>
               <div className="space-y-2">
