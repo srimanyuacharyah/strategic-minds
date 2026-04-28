@@ -4,7 +4,7 @@ import { FiShield, FiGithub, FiTwitter } from 'react-icons/fi';
 export default function Footer() {
   return (
     <footer className="glass-dark border-t border-slate-800 mt-16">
-      <div className="max-w-6xl mx-auto px-4 py-10">
+      <div className="max-w-full mx-auto px-6 md:px-12 py-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-3">

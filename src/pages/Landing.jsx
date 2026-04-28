@@ -39,7 +39,7 @@ export default function Landing() {
       
       {/* Hero Section */}
       <section className="relative pt-40 pb-20 px-4">
-        <div className="max-w-[1400px] mx-auto text-center">
+        <div className="max-w-full mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full glass border border-civic-500/30 mb-10 animate-float">
             <span className="w-3 h-3 bg-civic-400 rounded-full animate-ping" />
             <span className="text-civic-300 text-sm font-black uppercase tracking-widest">Live: Building the Digital Bridge</span>
@@ -71,7 +71,7 @@ export default function Landing() {
       {/* Animated Service Symbols Track */}
       <div className="bg-slate-900/40 py-10 border-y border-white/5 relative overflow-hidden">
         <div className="flex items-center gap-20 animate-bridge whitespace-nowrap">
-          {[
+          { [
             { icon: '🛣️', label: 'Road Works' },
             { icon: '🚰', label: 'Water Supply' },
             { icon: '💡', label: 'Electricity' },
@@ -84,7 +84,7 @@ export default function Landing() {
           ].map((s, i) => (
             <div key={i} className="flex items-center gap-4 group">
               <span className="text-4xl group-hover:scale-125 transition-transform">{s.icon}</span>
-              <span className="text-slate-400 font-black uppercase tracking-widest text-sm">{s.label}</span>
+              <span className="text-slate-400 font-black uppercase tracking-widest text-lg">{s.label}</span>
             </div>
           ))}
           {/* Duplicate for seamless loop if needed, but animate-bridge is linear */}
@@ -93,10 +93,12 @@ export default function Landing() {
 
       {/* Broad Stats Display */}
       <section className="py-32 px-6">
-        <div className="max-w-[1600px] mx-auto">
+        <div className="max-w-full mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-5xl font-black text-white mb-4">Live Performance Metrics</h2>
-            <p className="text-slate-500 text-xl font-medium">Real-time resolution data across all connected departments</p>
+            <p className="text-slate-400 text-lg leading-relaxed">
+              Transforming citizen complaints into structured, actionable government intelligence.
+            </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <StatsCounter value={98} label="Resolved Complaints" icon="✅" suffix="%" />
@@ -109,7 +111,7 @@ export default function Landing() {
 
       {/* Smart Bridge Flow Visualization */}
       <section className="relative py-32 overflow-hidden bg-slate-950">
-        <div className="max-w-[1600px] mx-auto px-6 relative">
+        <div className="max-w-full mx-auto px-6 relative">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-16 relative z-10">
             {/* Citizen Hub */}
             <div className="flex flex-col items-center gap-6 group">
@@ -135,7 +137,7 @@ export default function Landing() {
                     <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center border-2 border-civic-400/50 shadow-2xl">
                       <span className="text-2xl">{item.icon}</span>
                     </div>
-                    <span className="text-xs text-civic-300 font-black uppercase tracking-tighter">{item.label}</span>
+                    <span className="text-lg text-civic-300 font-black uppercase tracking-tighter">{item.label}</span>
                   </div>
                 </div>
               ))}
@@ -157,7 +159,7 @@ export default function Landing() {
 
       {/* Features Grid */}
       <section className="py-20 px-4 bg-slate-950">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-full mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <FeatureCard 
               icon={<FiZap className="text-civic-400" />}
@@ -208,7 +210,7 @@ function FeatureCard({ icon, title, description }) {
         {icon}
       </div>
       <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
-      <p className="text-slate-400 text-sm leading-relaxed">{description}</p>
+      <p className="text-slate-400 text-base leading-relaxed">{description}</p>
     </div>
   );
 }
@@ -217,7 +219,7 @@ function StatItem({ label, value }) {
   return (
     <div>
       <p className="text-3xl md:text-4xl font-black text-white mb-1">{value}</p>
-      <p className="text-slate-500 text-sm font-medium uppercase tracking-wider">{label}</p>
+      <p className="text-slate-500 text-base font-medium uppercase tracking-wider">{label}</p>
     </div>
   );
 }

@@ -52,7 +52,7 @@ export default function Navbar() {
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'glass-dark shadow-lg' : 'bg-transparent'}`}>
-      <div className="max-w-[1600px] mx-auto px-6 md:px-12 h-20 flex items-center justify-between gap-4">
+      <div className="max-w-full mx-auto px-6 md:px-12 h-20 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group shrink-0">
           <div className="w-10 h-10 bg-gradient-to-br from-civic-500 to-sky-500 rounded-xl flex items-center justify-center shadow-glow group-hover:scale-110 transition-transform">
@@ -91,16 +91,16 @@ export default function Navbar() {
               >
                 <FiLogOut size={18} />
               </button>
-              <Link to="/report" className="btn-primary py-2 px-6 text-sm font-bold">
+              <Link to="/report" className="btn-primary py-2 px-6 text-base font-bold">
                 Report Issue
               </Link>
             </div>
           ) : (
             <div className="flex items-center gap-3">
-              <Link to="/login" className="text-slate-300 hover:text-white font-semibold text-sm transition-colors">
+              <Link to="/login" className="text-slate-300 hover:text-white font-semibold text-lg transition-colors">
                 Log In
               </Link>
-              <Link to="/signup" className="btn-primary py-2 px-6 text-sm font-bold">
+              <Link to="/signup" className="btn-primary py-2 px-6 text-base font-bold">
                 Sign Up
               </Link>
             </div>
@@ -124,7 +124,7 @@ export default function Navbar() {
             <Link
               key={l.path}
               to={l.path}
-              className={`nav-link text-lg py-2 ${location.pathname === l.path ? 'nav-link-active' : ''}`}
+              className={`nav-link text-xl py-2 ${location.pathname === l.path ? 'nav-link-active' : ''}`}
             >
               {l.label}
             </Link>
@@ -136,12 +136,12 @@ export default function Navbar() {
                 <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center">
                   <FiUser className="text-civic-400" />
                 </div>
-                <span className="text-slate-300 font-medium">{user.email}</span>
+                <span className="text-slate-300 font-medium text-lg">{user.email}</span>
               </div>
-              <button onClick={handleLogout} className="btn-secondary w-full text-red-400 border-red-500/30">
+              <button onClick={handleLogout} className="btn-secondary w-full text-red-400 border-red-500/30 text-lg">
                 Log Out
               </button>
-              <Link to="/report" className="btn-primary w-full text-center">
+              <Link to="/report" className="btn-primary w-full text-center text-lg">
                 Report Issue
               </Link>
             </div>
