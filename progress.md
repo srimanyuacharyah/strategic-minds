@@ -22,4 +22,3 @@ What is coming up next
 We are looking into adding a neighborhood health score and a witness system to make this app really stand out.
 We are making sure it looks just as good on a phone as it does on your computer.
 
-Last updated after the latest progress commit on April 28, 2026
