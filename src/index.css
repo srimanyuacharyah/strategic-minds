@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  body {
+    @apply bg-slate-950 text-slate-100 font-sans;
+    background: radial-gradient(ellipse at top, #1e1b4b 0%, #0f172a 60%);
+    min-height: 100vh;
+  }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { @apply bg-slate-900; }
+  ::-webkit-scrollbar-thumb { @apply bg-civic-600 rounded-full; }
+}
+
+@layer components {
+  .glass {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .glass-dark {
+    background: rgba(15,23,42,0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(99,102,241,0.2);
+  }
+  .btn-primary {
+    @apply bg-civic-600 hover:bg-civic-500 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 shadow-glow hover:shadow-glow hover:scale-105 active:scale-95;
+  }
+  .btn-secondary {
+    @apply glass text-civic-300 hover:text-white border border-civic-500/40 hover:border-civic-400 font-semibold px-6 py-3 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95;
+  }
+  .btn-success {
+    @apply bg-accent-500 hover:bg-accent-400 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 shadow-glow-green hover:scale-105 active:scale-95;
+  }
+  .card {
+    @apply glass rounded-2xl p-6 shadow-card;
+  }
+  .input {
+    @apply glass-dark w-full px-4 py-3 rounded-xl text-slate-100 placeholder-slate-500 border border-slate-700 focus:border-civic-500 focus:outline-none focus:ring-2 focus:ring-civic-500/30 transition-all duration-200;
+  }
+  .section-title {
+    @apply text-2xl font-bold text-white mb-1;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full;
+  }
+  .badge-road     { @apply bg-orange-500/20 text-orange-300 border border-orange-500/30; }
+  .badge-water    { @apply bg-blue-500/20 text-blue-300 border border-blue-500/30; }
+  .badge-electricity { @apply bg-yellow-500/20 text-yellow-300 border border-yellow-500/30; }
+  .badge-waste    { @apply bg-green-500/20 text-green-300 border border-green-500/30; }
+  .badge-other    { @apply bg-purple-500/20 text-purple-300 border border-purple-500/30; }
+  .badge-pending  { @apply bg-yellow-500/20 text-yellow-300 border border-yellow-500/30; }
+  .badge-progress { @apply bg-blue-500/20 text-blue-300 border border-blue-500/30; }
+  .badge-resolved { @apply bg-green-500/20 text-green-300 border border-green-500/30; }
+  .stat-card {
+    @apply glass rounded-2xl p-5 flex flex-col gap-2 hover:border-civic-500/40 transition-all duration-300 hover:shadow-glow cursor-default;
+  }
+  .nav-link {
+    @apply text-slate-400 hover:text-white transition-colors duration-200 font-medium text-sm;
+  }
+  .nav-link-active {
+    @apply text-civic-400 font-semibold;
+  }
+  .page-wrapper {
+    @apply min-h-screen pt-20 pb-12 px-4;
+  }
+  .page-container {
+    @apply max-w-6xl mx-auto;
+  }
+  .gradient-text {
+    @apply bg-gradient-to-r from-civic-400 to-sky-400 bg-clip-text text-transparent;
+  }
+  .shimmer-bg {
+    background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+}
+
+/* Leaflet map override */
+.leaflet-container {
+  background: #1e293b !important;
+  border-radius: 1rem;
+}
+.leaflet-tile {
+  filter: brightness(0.6) saturate(0.5) hue-rotate(200deg);
+}
+.leaflet-popup-content-wrapper {
+  background: #1e1b4b !important;
+  color: #e2e8f0 !important;
+  border: 1px solid rgba(99,102,241,0.4) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 0 20px rgba(99,102,241,0.3) !important;
+}
+.leaflet-popup-tip { background: #1e1b4b !important; }
+
+/* Chart.js dark override */
+canvas { border-radius: 12px; }
+
+/* Custom range input */
+input[type="range"] {
+  @apply accent-civic-500;
+}
+
+/* Drag and drop zone */
+.drop-zone {
+  transition: all 0.3s ease;
+}
+.drop-zone.active {
+  border-color: #6366f1;
+  background: rgba(99,102,241,0.1);
+  transform: scale(1.01);
+}
+
+/* Animated gradient border */
+.gradient-border {
+  position: relative;
+  background: linear-gradient(#0f172a, #0f172a) padding-box,
+              linear-gradient(135deg, #6366f1, #0ea5e9) border-box;
+  border: 2px solid transparent;
+}
+
+/* Timeline */
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 19px;
+  top: 40px;
+  bottom: -20px;
+  width: 2px;
+  background: linear-gradient(180deg, #6366f1 0%, transparent 100%);
+}
+.timeline-item:last-child::before { display: none; }
