@@ -25,10 +25,12 @@ export default function StatsCounter({ value, label, icon, suffix = '' }) {
   }, [value]);
 
   return (
-    <div ref={ref} className="stat-card text-center">
-      <div className="text-3xl mb-1">{icon}</div>
-      <div className="text-3xl font-black gradient-text">{count}{suffix}</div>
-      <div className="text-slate-400 text-sm font-medium">{label}</div>
+    <div ref={ref} className="stat-card text-center p-8 border-civic-500/20 bg-slate-900/50 group hover:scale-105 transition-transform duration-500">
+      <div className="text-5xl mb-4 group-hover:animate-bounce">{icon}</div>
+      <div className="text-6xl md:text-7xl font-black text-white glow-text mb-2">
+        {count}{suffix}
+      </div>
+      <div className="text-slate-400 text-lg font-bold uppercase tracking-widest">{label}</div>
     </div>
   );
 }

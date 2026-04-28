@@ -155,24 +155,33 @@ input[type="range"] {
   animation: scan-line 2s infinite linear;
 }
 @keyframes bridge-flow {
-  0% { transform: translateX(-100%) scale(0.5); opacity: 0; }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { transform: translateX(500%) scale(1.2); opacity: 0; }
+  0% { transform: translateX(-150%) scale(0.6); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(800%) scale(1.5); opacity: 0; }
 }
 @keyframes orbit {
-  from { transform: rotate(0deg) translateX(80px) rotate(0deg); }
-  to { transform: rotate(360deg) translateX(80px) rotate(-360deg); }
+  from { transform: rotate(0deg) translateX(150px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(150px) rotate(-360deg); }
+}
+@keyframes float-broad {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  25% { transform: translateY(-30px) translateX(15px); }
+  50% { transform: translateY(-15px) translateX(-15px); }
+  75% { transform: translateY(-40px) translateX(10px); }
 }
 
 .animate-bridge {
-  animation: bridge-flow 6s infinite linear;
+  animation: bridge-flow 15s infinite linear;
 }
 .animate-orbit {
-  animation: orbit 10s infinite linear;
+  animation: orbit 20s infinite linear;
 }
 .animate-reverse-orbit {
-  animation: orbit 15s infinite linear reverse;
+  animation: orbit 25s infinite linear reverse;
+}
+.animate-float-broad {
+  animation: float-broad 12s infinite ease-in-out;
 }
 
 .timeline-item::before {

@@ -1,113 +1,155 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowRight, FiShield, FiMapPin, FiZap, FiBarChart2, FiUsers } from 'react-icons/fi';
+import StatsCounter from '../components/StatsCounter';
+
+const SERVICES = ['Water Supply', 'Electricity', 'Waste Management', 'Public Services', 'Roads'];
 
 export default function Landing() {
+  const [typedText, setTypedText] = useState('');
+  const [serviceIndex, setServiceIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentService = SERVICES[serviceIndex];
+    const typeSpeed = isDeleting ? 50 : 100;
+    
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        setTypedText(currentService.substring(0, typedText.length + 1));
+        if (typedText.length === currentService.length) {
+          setTimeout(() => setIsDeleting(true), 2000);
+        }
+      } else {
+        setTypedText(currentService.substring(0, typedText.length - 1));
+        if (typedText.length === 0) {
+          setIsDeleting(false);
+          setServiceIndex((serviceIndex + 1) % SERVICES.length);
+        }
+      }
+    }, typeSpeed);
+
+    return () => clearTimeout(timeout);
+  }, [typedText, isDeleting, serviceIndex]);
+
   return (
     <div className="min-h-screen bg-slate-950 overflow-hidden">
       {/* Background Gradients */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-gradient-to-b from-civic-600/20 to-transparent blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[800px] bg-gradient-to-b from-civic-600/30 to-transparent blur-[140px] pointer-events-none" />
       
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-4">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-civic-500/30 mb-8 animate-fade-in">
-            <span className="w-2 h-2 bg-civic-400 rounded-full animate-pulse" />
-            <span className="text-civic-300 text-sm font-semibold">Transforming Civic Engagement</span>
+      <section className="relative pt-40 pb-20 px-4">
+        <div className="max-w-[1400px] mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full glass border border-civic-500/30 mb-10 animate-float">
+            <span className="w-3 h-3 bg-civic-400 rounded-full animate-ping" />
+            <span className="text-civic-300 text-sm font-black uppercase tracking-widest">Live: Building the Digital Bridge</span>
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight animate-slide-up">
-            The Smart Bridge Between <br />
-            <span className="gradient-text glow-text">Citizens & Government</span>
+          <h1 className="text-6xl md:text-8xl font-black text-white mb-8 tracking-tighter">
+            Smart Solutions for <br />
+            <span className="gradient-text glow-text min-h-[1.2em] inline-block">
+              {typedText}<span className="animate-pulse ml-1">|</span>
+            </span>
           </h1>
           
-          <p className="text-slate-400 text-lg md:text-xl max-w-3xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: '100ms' }}>
-            Empowering communities with AI-driven reporting, real-time tracking, and automated routing. 
-            Report issues, track progress, and build a better city together.
+          <p className="text-slate-400 text-xl md:text-3xl max-w-5xl mx-auto mb-14 animate-slide-up font-medium leading-relaxed">
+            Revolutionizing urban governance with <span className="text-white">AI-Powered Accountability</span>. 
+            The intelligent bridge between Citizens & Government.
           </p>
           
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: '200ms' }}>
-            <Link to="/signup" className="btn-primary w-full sm:w-auto px-8 py-4 text-lg flex items-center justify-center gap-2 group">
-              Join CivicAI <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 animate-slide-up" style={{ animationDelay: '200ms' }}>
+            <Link to="/signup" className="btn-primary w-full sm:w-auto px-12 py-5 text-xl flex items-center justify-center gap-3 group shadow-glow">
+              Join the Movement <FiArrowRight className="group-hover:translate-x-2 transition-transform" />
             </Link>
-            <Link to="/home" className="btn-secondary w-full sm:w-auto px-8 py-4 text-lg">
-              Explore Dashboard
+            <Link to="/home" className="btn-secondary w-full sm:w-auto px-12 py-5 text-xl">
+              Launch Dashboard
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Smart Bridge Visualization */}
-      <section className="relative py-24 overflow-hidden bg-slate-900/50 border-y border-civic-500/10">
-        <div className="max-w-7xl mx-auto px-6 relative">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-12 relative z-10">
-            {/* Citizen Side */}
-            <div className="flex flex-col items-center gap-4 group">
+      {/* Animated Service Symbols Track */}
+      <div className="bg-slate-900/40 py-10 border-y border-white/5 relative overflow-hidden">
+        <div className="flex items-center gap-20 animate-bridge whitespace-nowrap">
+          {[
+            { icon: '🛣️', label: 'Road Works' },
+            { icon: '🚰', label: 'Water Supply' },
+            { icon: '💡', label: 'Electricity' },
+            { icon: '🗑️', label: 'Waste Management' },
+            { icon: '🌳', label: 'Public Parks' },
+            { icon: '🏥', label: 'Health Services' },
+            { icon: '👮', label: 'Public Safety' },
+            { icon: '🚌', label: 'Transit' },
+            { icon: '🏗️', label: 'Infrastructure' },
+          ].map((s, i) => (
+            <div key={i} className="flex items-center gap-4 group">
+              <span className="text-4xl group-hover:scale-125 transition-transform">{s.icon}</span>
+              <span className="text-slate-400 font-black uppercase tracking-widest text-sm">{s.label}</span>
+            </div>
+          ))}
+          {/* Duplicate for seamless loop if needed, but animate-bridge is linear */}
+        </div>
+      </div>
+
+      {/* Broad Stats Display */}
+      <section className="py-32 px-6">
+        <div className="max-w-[1600px] mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl font-black text-white mb-4">Live Performance Metrics</h2>
+            <p className="text-slate-500 text-xl font-medium">Real-time resolution data across all connected departments</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <StatsCounter value={98} label="Resolved Complaints" icon="✅" suffix="%" />
+            <StatsCounter value={1450} label="Reports Received" icon="📥" />
+            <StatsCounter value={12} label="Pending Action" icon="⏳" suffix="%" />
+            <StatsCounter value={45} label="In Progress" icon="⚙️" suffix="%" />
+          </div>
+        </div>
+      </section>
+
+      {/* Smart Bridge Flow Visualization */}
+      <section className="relative py-32 overflow-hidden bg-slate-950">
+        <div className="max-w-[1600px] mx-auto px-6 relative">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-16 relative z-10">
+            {/* Citizen Hub */}
+            <div className="flex flex-col items-center gap-6 group">
               <div className="relative">
-                <div className="absolute -inset-4 bg-civic-500/20 rounded-full blur-xl group-hover:bg-civic-500/40 transition-all duration-500" />
-                <div className="relative w-24 h-24 bg-slate-800 rounded-3xl flex items-center justify-center border border-civic-500/30 shadow-glow">
-                  <FiUsers size={40} className="text-civic-400" />
+                <div className="absolute -inset-8 bg-civic-500/20 rounded-full blur-3xl group-hover:bg-civic-500/40 transition-all duration-500" />
+                <div className="relative w-32 h-32 bg-slate-800 rounded-[2.5rem] flex items-center justify-center border-2 border-civic-500/30 shadow-glow">
+                  <FiUsers size={60} className="text-civic-400" />
                 </div>
               </div>
-              <p className="text-white font-bold tracking-widest uppercase text-xs">Citizens</p>
+              <h3 className="text-white font-black tracking-[0.2em] uppercase text-sm">Citizen Hub</h3>
             </div>
 
-            {/* The Bridge (Flow) */}
-            <div className="flex-1 w-full h-32 relative hidden md:block">
-              {/* Bridge Line */}
-              <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-civic-500/20 via-civic-400 to-sky-500/20 rounded-full" />
-              
-              {/* Flowing Elements */}
+            {/* The Bridge */}
+            <div className="flex-1 w-full h-40 relative hidden lg:block">
+              <div className="absolute top-1/2 left-0 right-0 h-1.5 bg-gradient-to-r from-civic-500/20 via-civic-400 to-sky-500/20 rounded-full shadow-[0_0_20px_rgba(99,102,241,0.3)]" />
               {[
-                { icon: '🚗', label: 'Roads', delay: '0s' },
-                { icon: '💧', label: 'Water', delay: '1.5s' },
-                { icon: '⚡', label: 'Power', delay: '3s' },
-                { icon: '♻️', label: 'Waste', delay: '4.5s' }
+                { icon: '📄', label: 'Report', delay: '0s' },
+                { icon: '🤖', label: 'AI Analysis', delay: '2s' },
+                { icon: '📡', label: 'Routing', delay: '4s' }
               ].map((item, i) => (
                 <div key={i} className="absolute top-1/2 -translate-y-1/2 animate-bridge" style={{ animationDelay: item.delay }}>
-                  <div className="flex flex-col items-center gap-1">
-                    <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center border border-civic-400/50 shadow-lg">
-                      <span className="text-xl">{item.icon}</span>
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center border-2 border-civic-400/50 shadow-2xl">
+                      <span className="text-2xl">{item.icon}</span>
                     </div>
-                    <span className="text-[10px] text-civic-400 font-bold uppercase tracking-tighter">{item.label}</span>
+                    <span className="text-xs text-civic-300 font-black uppercase tracking-tighter">{item.label}</span>
                   </div>
                 </div>
               ))}
-              
-              {/* Pulse Signal */}
-              <div className="absolute top-1/2 left-0 w-4 h-4 bg-civic-400 rounded-full -translate-y-1/2 blur-sm animate-ping" />
             </div>
 
-            {/* Government Side */}
-            <div className="flex flex-col items-center gap-4 group">
+            {/* Government Hub */}
+            <div className="flex flex-col items-center gap-6 group">
               <div className="relative">
-                <div className="absolute -inset-4 bg-sky-500/20 rounded-full blur-xl group-hover:bg-sky-500/40 transition-all duration-500" />
-                <div className="relative w-24 h-24 bg-slate-800 rounded-3xl flex items-center justify-center border border-sky-500/30 shadow-glow">
-                  <FiShield size={40} className="text-sky-400" />
+                <div className="absolute -inset-8 bg-sky-500/20 rounded-full blur-3xl group-hover:bg-sky-500/40 transition-all duration-500" />
+                <div className="relative w-32 h-32 bg-slate-800 rounded-[2.5rem] flex items-center justify-center border-2 border-sky-500/30 shadow-glow">
+                  <FiShield size={60} className="text-sky-400" />
                 </div>
               </div>
-              <p className="text-white font-bold tracking-widest uppercase text-xs">Government</p>
-            </div>
-          </div>
-
-          {/* Central Orbiting Services (Mobile view/Accent) */}
-          <div className="mt-16 text-center">
-            <h2 className="text-3xl font-black text-white mb-12">Seamless Civic Intelligence</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-              {[
-                { icon: <FiZap />, label: 'AI Routing' },
-                { icon: <FiMapPin />, label: 'GIS Mapping' },
-                { icon: <FiBarChart2 />, label: 'Analytics' },
-                { icon: <FiUsers />, label: 'Community' },
-                { icon: <FiShield />, label: 'Accountability' },
-                { icon: <FiArrowRight />, label: 'Feedback' },
-              ].map((service, i) => (
-                <div key={i} className="card bg-slate-900/50 border-slate-800 hover:border-civic-500/30 transition-all group animate-fade-in" style={{ animationDelay: `${i * 100}ms` }}>
-                  <div className="w-10 h-10 bg-civic-500/10 rounded-xl flex items-center justify-center text-civic-400 mb-4 group-hover:scale-110 transition-transform mx-auto">
-                    {service.icon}
-                  </div>
-                  <p className="text-slate-300 font-bold text-xs uppercase tracking-widest">{service.label}</p>
-                </div>
-              ))}
+              <h3 className="text-white font-black tracking-[0.2em] uppercase text-sm">Government Portal</h3>
             </div>
           </div>
         </div>
