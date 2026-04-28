@@ -1,6 +1,7 @@
 import { supabase } from '../config/supabase';
 import { MOCK_COMPLAINTS, MOCK_FEEDBACK } from '../data/mockData';
 import { generateComplaintId } from './aiService';
+import toast from 'react-hot-toast';
 
 const isSupabaseConfigured = !!import.meta.env.VITE_SUPABASE_URL;
 const STORAGE_KEY_COMPLAINTS = 'civicai_complaints';
@@ -88,6 +89,19 @@ export async function getComplaintById(id) {
   return all.find(c => c.id === id) || null;
 }
 
+export async function sendNotificationEmail(email, subject, body) {
+  console.log(`[EMAIL NOTIFICATION] to: ${email}`);
+  console.log(`Subject: ${subject}`);
+  console.log(`Body: ${body}`);
+  // In a demo, we show a toast to prove the logic triggered
+  setTimeout(() => {
+    toast.success(`Demo: Notification sent to ${email}`, {
+      icon: '📧',
+      style: { border: '1px solid #10b981', padding: '16px', color: '#10b981' },
+    });
+  }, 1000);
+}
+
 export async function updateComplaintStatus(id, status) {
   if (isSupabaseConfigured) {
     try {
@@ -104,6 +118,15 @@ export async function updateComplaintStatus(id, status) {
   if (idx !== -1) {
     complaints[idx].status = status;
     complaints[idx].updatedAt = new Date().toISOString();
+    
+    // Trigger notification
+    const userEmail = complaints[idx].userEmail || 'citizen@example.com';
+    sendNotificationEmail(
+      userEmail,
+      `CivicAI: Your issue #${id} is now ${status}`,
+      `Hello, your reported issue "${complaints[idx].title}" has been moved to ${status}. Thank you for contributing to your city!`
+    );
+    
     saveLocalComplaints(complaints);
   }
 }

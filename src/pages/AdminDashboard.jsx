@@ -408,33 +408,57 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Doughnut */}
-          <div className="card animate-fade-in">
-            <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-              <FiTrendingUp className="text-civic-400" /> By Category
-            </h3>
-            <div style={{ height: '200px' }}>
-              <Doughnut data={doughnutData} options={{
-                responsive: true, maintainAspectRatio: false,
-                plugins: {
-                  legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 12, padding: 12, font: { family: 'Inter', size: 11 } } },
-                  tooltip: { backgroundColor: '#1e1b4b', titleColor: '#a5b4fc', bodyColor: '#cbd5e1', borderColor: '#4f46e5', borderWidth: 1 },
-                },
-                cutout: '65%',
-              }} />
+        </div>
+
+        {/* Analytics Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mb-6">
+          {/* Doughnut - Enlarged */}
+          <div className="card animate-fade-in bg-slate-900/60 border-civic-500/20">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-3xl font-black text-white flex items-center gap-3">
+                <FiTrendingUp className="text-civic-400" /> Issues by Category
+              </h3>
+              <div className="text-right">
+                <p className="text-4xl font-black text-civic-400">{total}</p>
+                <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Total Classified</p>
+              </div>
             </div>
-            {/* Category breakdown */}
-            <div className="mt-4 space-y-2">
-              {Object.entries(byCategory).map(([cat, count]) => (
-                <div key={cat} className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: CATEGORY_COLORS[cat]?.hex }} />
-                  <span className="text-slate-300 text-xs flex-1">{cat}</span>
-                  <div className="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: `${(count/total)*100}%`, background: CATEGORY_COLORS[cat]?.hex }} />
-                  </div>
-                  <span className="text-slate-400 text-xs font-mono w-6 text-right">{count}</span>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div style={{ height: '400px' }} className="relative">
+                <Doughnut data={doughnutData} options={{
+                  responsive: true, maintainAspectRatio: false,
+                  plugins: {
+                    legend: { position: 'right', labels: { color: '#94a3b8', boxWidth: 15, padding: 20, font: { family: 'Inter', size: 14, weight: 'bold' } } },
+                    tooltip: { backgroundColor: '#1e1b4b', titleColor: '#a5b4fc', bodyColor: '#cbd5e1', borderColor: '#4f46e5', borderWidth: 1, padding: 12 },
+                  },
+                  cutout: '70%',
+                }} />
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <span className="text-5xl font-black text-white">{total}</span>
+                  <span className="text-slate-500 text-sm font-bold uppercase">Reports</span>
                 </div>
-              ))}
+              </div>
+
+              <div className="space-y-6">
+                <p className="text-slate-400 text-lg font-medium leading-relaxed italic">
+                  "Strategic analysis indicates that <span className="text-white font-bold">{Object.keys(byCategory)[0]}</span> remains the highest priority sector, accounting for <span className="text-civic-400 font-black">{Math.round((byCategory[Object.keys(byCategory)[0]]/total)*100)}%</span> of all citizen reports."
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {Object.entries(byCategory).map(([cat, count]) => (
+                    <div key={cat} className="glass-dark p-4 rounded-2xl border border-slate-700/50 hover:border-civic-500/40 transition-all">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="w-3 h-3 rounded-full" style={{ background: CATEGORY_COLORS[cat]?.hex }} />
+                        <span className="text-xl font-black text-white">{count}</span>
+                      </div>
+                      <p className="text-slate-400 text-sm font-bold uppercase tracking-tighter">{cat}</p>
+                      <div className="mt-3 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                        <div className="h-full rounded-full" style={{ width: `${(count/total)*100}%`, background: CATEGORY_COLORS[cat]?.hex }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>

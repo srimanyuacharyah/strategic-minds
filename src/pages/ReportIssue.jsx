@@ -5,7 +5,7 @@ import PhotoUpload from '../components/PhotoUpload';
 import AIConfidenceBadge from '../components/AIConfidenceBadge';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { classifyIssue, summarizeComplaint, routeToDepartment } from '../services/aiService';
-import { submitComplaint } from '../services/dbService';
+import { submitComplaint, sendNotificationEmail } from '../services/dbService';
 import { isDemoMode } from '../services/aiService';
 import { useLanguage } from '../context/LanguageContext';
 import toast from 'react-hot-toast';
@@ -34,6 +34,7 @@ export default function ReportIssue() {
     title: '',
     description: '',
     location: '',
+    email: '',
     proposal: '', // New fix proposal field
   });
   const [aiResult, setAiResult] = useState(null);
@@ -41,7 +42,34 @@ export default function ReportIssue() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(null);
   const [showLocations, setShowLocations] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
   const STEPS_LOCALIZED = [t('details'), t('aiAnalysis'), t('confirm')];
+
+  // Debounced Location Search
+  useEffect(() => {
+    if (!form.location || form.location.length < 3) {
+      setSearchResults([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(form.location)}&addressdetails=1&limit=5`);
+        const data = await res.json();
+        setSearchResults(data.map(item => ({
+          display: item.display_name,
+          lat: item.lat,
+          lng: item.lon
+        })));
+      } catch (err) {
+        console.error('Geocoding error:', err);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [form.location]);
 
   const handleChange = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
@@ -100,10 +128,11 @@ export default function ReportIssue() {
       const complaint = await submitComplaint({
         title: form.title,
         description: form.description,
+        userEmail: form.email,
         location: {
           address: form.location || 'Location not specified',
-          lat: 18.5204 + (Math.random() - 0.5) * 0.05,
-          lng: 73.8567 + (Math.random() - 0.5) * 0.05,
+          lat: form.lat ? parseFloat(form.lat) : (18.5204 + (Math.random() - 0.5) * 0.05),
+          lng: form.lng ? parseFloat(form.lng) : (73.8567 + (Math.random() - 0.5) * 0.05),
         },
         category: aiResult?.category || 'Other',
         aiSummary,
@@ -111,6 +140,14 @@ export default function ReportIssue() {
         department: aiResult?.category || 'Other',
         hasImage: !!file,
       });
+
+      // Send initial notification
+      sendNotificationEmail(
+        form.email, 
+        `CivicAI: Issue Received #${complaint.id}`,
+        `We have received your report: "${form.title}". Our AI is routing it to the ${dept} department. You can track it using ID: ${complaint.id}`
+      );
+
       setSubmitted(complaint);
       toast.success('Complaint submitted successfully!');
     } catch (e) {
@@ -244,9 +281,18 @@ export default function ReportIssue() {
                 </button>
               </div>
             </div>
+            </div>
             <div>
-              <label className="text-slate-300 text-sm font-medium block mb-2">💡 {t('suggestFix')}</label>
-              <textarea name="proposal" value={form.proposal} onChange={handleChange} rows={2} className="input resize-none" placeholder="Got a solution?" />
+              <label className="text-slate-300 text-sm font-medium block mb-2">📧 {t('email')} <span className="text-red-400">*</span></label>
+              <input 
+                name="email" 
+                type="email"
+                value={form.email} 
+                onChange={handleChange} 
+                className="input" 
+                placeholder="Where should we send status updates?" 
+                required
+              />
             </div>
             <div className="relative">
               <label className="text-slate-300 text-sm font-medium block mb-2"><FiMapPin className="inline mr-1 text-civic-400" />{t('location')}</label>
@@ -261,21 +307,30 @@ export default function ReportIssue() {
                 placeholder="Type your area or landmark..." 
                 onFocus={() => setShowLocations(true)} 
               />
-              {showLocations && form.location && (
-                <div className="absolute left-0 right-0 top-full mt-1 z-20 glass-dark rounded-xl border border-slate-700 max-h-52 overflow-y-auto shadow-2xl">
-                  <p className="text-[10px] text-slate-500 px-3 pt-2 pb-1 font-semibold uppercase tracking-wider">📍 Accurate Recommendations</p>
-                  {/* In a real app, this would call a Geocoding API (e.g., Google Places or OpenStreetMap) */}
-                  {RECOMMENDED_LOCATIONS
-                    .filter(loc => loc.toLowerCase().includes(form.location.toLowerCase()))
-                    .map(loc => (
-                    <button key={loc} type="button"
-                      className="w-full text-left px-3 py-2.5 text-sm text-slate-300 hover:bg-civic-500/10 hover:text-white transition-all flex items-center gap-2 border-b border-slate-700/30 last:border-0"
-                      onClick={() => { setForm(p => ({ ...p, location: loc })); setShowLocations(false); }}>
-                      <FiMapPin size={12} className="text-civic-400 shrink-0" /> {loc}
-                    </button>
-                  ))}
-                  {RECOMMENDED_LOCATIONS.filter(loc => loc.toLowerCase().includes(form.location.toLowerCase())).length === 0 && (
-                    <div className="px-3 py-3 text-xs text-slate-500 italic">No matching landmarks found. Continue typing your full address.</div>
+              {showLocations && (form.location || isSearching) && (
+                <div className="absolute left-0 right-0 top-full mt-1 z-20 glass-dark rounded-xl border border-slate-700 max-h-60 overflow-y-auto shadow-2xl">
+                  {isSearching ? (
+                    <div className="px-4 py-3 flex items-center gap-3 text-civic-400 text-xs italic">
+                      <div className="w-3 h-3 border-2 border-civic-400 border-t-transparent rounded-full animate-spin" />
+                      Searching global database...
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-[10px] text-slate-500 px-3 pt-2 pb-1 font-semibold uppercase tracking-wider">📍 Global Locations Found</p>
+                      {searchResults.map((loc, i) => (
+                        <button key={i} type="button"
+                          className="w-full text-left px-3 py-2.5 text-sm text-slate-300 hover:bg-civic-500/10 hover:text-white transition-all flex items-center gap-2 border-b border-slate-700/30 last:border-0"
+                          onClick={() => { 
+                            setForm(p => ({ ...p, location: loc.display, lat: loc.lat, lng: loc.lng })); 
+                            setShowLocations(false); 
+                          }}>
+                          <FiMapPin size={12} className="text-civic-400 shrink-0" /> {loc.display}
+                        </button>
+                      ))}
+                      {searchResults.length === 0 && form.location.length >= 3 && (
+                        <div className="px-3 py-3 text-xs text-slate-500 italic">No global matches found. Try adding city name.</div>
+                      )}
+                    </>
                   )}
                 </div>
               )}
