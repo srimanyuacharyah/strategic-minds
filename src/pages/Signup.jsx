@@ -39,7 +39,7 @@ export default function Signup() {
     setLoading(true);
     const { error } = await supabase.auth.signUp({ email, password });
     if (error) {
-      if (error.message.includes('not configured') || error.message.includes('Local Persistence Mode')) {
+      if (error.message.includes('not configured') || error.message.includes('Local Persistence Mode') || error.message.includes('Invalid API key')) {
         toast.success('Signed up in Local Mode! (Data saved in browser)');
         navigate('/login');
       } else {

@@ -1,4 +1,5 @@
 import { supabase } from '../config/supabase';
+import emailjs from '@emailjs/browser';
 import { MOCK_COMPLAINTS, MOCK_FEEDBACK } from '../data/mockData';
 import { generateComplaintId } from './aiService';
 import toast from 'react-hot-toast';
@@ -93,13 +94,38 @@ export async function sendNotificationEmail(email, subject, body) {
   console.log(`[EMAIL NOTIFICATION] to: ${email}`);
   console.log(`Subject: ${subject}`);
   console.log(`Body: ${body}`);
-  // In a demo, we show a toast to prove the logic triggered
-  setTimeout(() => {
-    toast.success(`Demo: Notification sent to ${email}`, {
-      icon: '📧',
-      style: { border: '1px solid #10b981', padding: '16px', color: '#10b981' },
-    });
-  }, 1000);
+
+  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+  if (serviceId && templateId && publicKey) {
+    try {
+      await emailjs.send(
+        serviceId,
+        templateId,
+        {
+          to_email: email,
+          subject: subject,
+          message: body,
+        },
+        publicKey
+      );
+      toast.success(`Email notification sent to ${email}`, { icon: '📧' });
+    } catch (error) {
+      console.error('EmailJS error:', error);
+      toast.error('Failed to send email notification.');
+    }
+  } else {
+    // Fallback if EmailJS is not configured
+    setTimeout(() => {
+      toast.success(`Demo: Notification sent to ${email}`, {
+        icon: '📧',
+        style: { border: '1px solid #10b981', padding: '16px', color: '#10b981' },
+      });
+      console.warn("EmailJS keys missing. Set VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID, and VITE_EMAILJS_PUBLIC_KEY in .env to send real emails.");
+    }, 1000);
+  }
 }
 
 export async function updateComplaintStatus(id, status) {

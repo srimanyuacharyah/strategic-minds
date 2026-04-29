@@ -36,7 +36,6 @@ export default function App() {
         </main>
         <Footer />
         <Chatbot />
-        <Chatbot />
       </div>
       <Toaster
         position="top-right"

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { FiRefreshCw, FiMapPin, FiTrendingUp, FiZap, FiCheckCircle, FiClock, FiAlertCircle, FiX, FiArrowUp, FiPhone, FiSearch } from 'react-icons/fi';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Filler } from 'chart.js';
 import { Doughnut, Bar, Line } from 'react-chartjs-2';
-import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { getAnalytics, updateComplaintStatus } from '../services/dbService';
 import { CATEGORY_COLORS, STATUS_COLORS, DEPARTMENTS } from '../data/mockData';
@@ -15,6 +15,23 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarEle
 const chartDefaults = {
   plugins: { legend: { labels: { color: '#94a3b8', font: { family: 'Inter', size: 12 } } } },
 };
+
+function MapPanControls() {
+  const map = useMap();
+  const pan = (dx, dy) => {
+    map.panBy([dx, dy], { animate: true, duration: 0.25 });
+  };
+  return (
+    <div className="absolute bottom-6 right-6 z-[1000] flex flex-col gap-1 items-center bg-slate-900/80 p-2 rounded-2xl border border-slate-700/50 backdrop-blur-sm shadow-xl">
+      <button onClick={() => pan(0, -100)} className="w-8 h-8 flex items-center justify-center bg-slate-800 text-slate-300 rounded-lg hover:bg-civic-500 hover:text-white transition-colors" title="Pan Up">↑</button>
+      <div className="flex gap-1">
+        <button onClick={() => pan(-100, 0)} className="w-8 h-8 flex items-center justify-center bg-slate-800 text-slate-300 rounded-lg hover:bg-civic-500 hover:text-white transition-colors" title="Pan Left">←</button>
+        <button onClick={() => pan(0, 100)} className="w-8 h-8 flex items-center justify-center bg-slate-800 text-slate-300 rounded-lg hover:bg-civic-500 hover:text-white transition-colors" title="Pan Down">↓</button>
+        <button onClick={() => pan(100, 0)} className="w-8 h-8 flex items-center justify-center bg-slate-800 text-slate-300 rounded-lg hover:bg-civic-500 hover:text-white transition-colors" title="Pan Right">→</button>
+      </div>
+    </div>
+  );
+}
 
 function StatCard({ icon, label, value, sub, color = 'civic' }) {
   const colors = {
@@ -370,6 +387,7 @@ export default function AdminDashboard() {
                       : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                   }
                 />
+                <MapPanControls />
                 {complaints.map(c => c.location?.lat && (
                   <CircleMarker
                     key={c.id}

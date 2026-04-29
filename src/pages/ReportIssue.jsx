@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiMapPin, FiSend, FiZap, FiMail, FiMic } from 'react-icons/fi';
 import PhotoUpload from '../components/PhotoUpload';
@@ -280,7 +280,6 @@ export default function ReportIssue() {
                   <FiMic size={20} className="animate-pulse" />
                 </button>
               </div>
-            </div>
             </div>
             <div>
               <label className="text-slate-300 text-sm font-medium block mb-2">📧 {t('email')} <span className="text-red-400">*</span></label>
