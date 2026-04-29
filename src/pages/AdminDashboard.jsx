@@ -4,7 +4,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearSca
 import { Doughnut, Bar, Line } from 'react-chartjs-2';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { getAnalytics, updateComplaintStatus } from '../services/dbService';
+import { getAnalytics, updateComplaintStatus, getProfiles } from '../services/dbService';
 import { CATEGORY_COLORS, STATUS_COLORS, DEPARTMENTS } from '../data/mockData';
 import LoadingSpinner from '../components/LoadingSpinner';
 import toast from 'react-hot-toast';
@@ -145,11 +145,13 @@ export default function AdminDashboard() {
   const [catFilter, setCatFilter] = useState('All');
   const [mapMode, setMapMode] = useState('night');
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [profiles, setProfiles] = useState([]);
 
   const load = async () => {
     setLoading(true);
-    const data = await getAnalytics();
+    const [data, profileData] = await Promise.all([getAnalytics(), getProfiles()]);
     setAnalytics(data);
+    if (profileData) setProfiles(profileData);
     setLoading(false);
   };
 
@@ -570,6 +572,45 @@ export default function AdminDashboard() {
                     </td>
                   </tr>
                 ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Registered Citizens Table */}
+        <div className="card animate-fade-in mt-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-white font-semibold">Registered Citizens</h3>
+              <p className="text-slate-500 text-xs mt-0.5">Signups captured in the profiles table</p>
+            </div>
+            <span className="text-slate-400 text-sm">{profiles.length} Users</span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-700/50">
+                  <th className="text-left text-slate-400 font-medium pb-3 pr-4 whitespace-nowrap">User ID</th>
+                  <th className="text-left text-slate-400 font-medium pb-3 pr-4 whitespace-nowrap">Email Address</th>
+                  <th className="text-left text-slate-400 font-medium pb-3 pr-4 whitespace-nowrap">Joined Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {profiles.length > 0 ? (
+                  profiles.map((p) => (
+                    <tr key={p.id} className="border-b border-slate-800/50 hover:bg-civic-500/5 transition-colors">
+                      <td className="py-3 pr-4 font-mono text-civic-400 text-xs whitespace-nowrap">{p.id.split('-')[0]}...</td>
+                      <td className="py-3 pr-4 text-slate-200">{p.email}</td>
+                      <td className="py-3 pr-4 text-slate-400 text-xs">{new Date(p.createdAt).toLocaleDateString()}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" className="py-6 text-center text-slate-500 text-sm">
+                      No users found. Ensure your API key is correct and signups are happening.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

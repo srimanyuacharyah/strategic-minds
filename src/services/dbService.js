@@ -209,3 +209,21 @@ export async function getAnalytics() {
 
   return { byCategory, byStatus, byDay, total: complaints.length, complaints };
 }
+
+export async function getProfiles() {
+  if (isSupabaseConfigured) {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('createdAt', { ascending: false });
+      if (!error && data) return data;
+    } catch (e) { console.warn('Supabase profiles fetch error', e); }
+  }
+  
+  // Fallback to empty array if Supabase fails or is unconfigured
+  try {
+    const localUsers = JSON.parse(localStorage.getItem('civic_registered_users') || '[]');
+    return localUsers;
+  } catch { return []; }
+}
