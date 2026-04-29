@@ -26,8 +26,15 @@ In the Render dashboard, go to the **Environment** tab and add the following var
 - `VITE_EMAILJS_SERVICE_ID` (Optional)
 - `VITE_EMAILJS_TEMPLATE_ID` (Optional)
 - `VITE_EMAILJS_PUBLIC_KEY` (Optional)
+- `NODE_VERSION`: `20.0.0` (Recommended)
 
-## 5. Handling Routes (Important!)
+## 5. Troubleshooting Build Failures
+If your build fails with "Exit Status 1":
+1.  **Check .npmrc:** I have added a `.npmrc` file to the project to handle dependency conflicts. Ensure this file is pushed to GitHub.
+2.  **Node Version:** Ensure `NODE_VERSION` is set to `20` or higher in the Render Environment tab.
+3.  **Logs:** Check the "Deploy" logs in Render. If you see "Out of Memory", you may need to upgrade your Render plan or optimize chunk sizes.
+
+## 6. Handling Routes (Important!)
 Since this is a Single Page Application (SPA), you must configure Render to redirect all traffic to `index.html`:
 1. In your Render Static Site settings, go to the **Redirects/Rewrites** tab.
 2. Click **Add Rule**.
