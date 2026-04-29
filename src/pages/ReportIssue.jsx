@@ -44,6 +44,7 @@ export default function ReportIssue() {
   const [showLocations, setShowLocations] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const STEPS_LOCALIZED = [t('details'), t('aiAnalysis'), t('confirm')];
 
   // Debounced Location Search
@@ -55,7 +56,7 @@ export default function ReportIssue() {
     const timer = setTimeout(async () => {
       setIsSearching(true);
       try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(form.location)}&addressdetails=1&limit=5`);
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(form.location)}&addressdetails=1&limit=10&countrycodes=in`);
         const data = await res.json();
         setSearchResults(data.map(item => ({
           display: item.display_name,
@@ -259,6 +260,7 @@ export default function ReportIssue() {
                 <button
                   type="button"
                   onClick={() => {
+                    if (isListening) return;
                     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                     if (!SpeechRecognition) {
                       toast.error('Speech recognition not supported. Try Chrome or Edge.');
@@ -266,18 +268,34 @@ export default function ReportIssue() {
                     }
                     const recognition = new SpeechRecognition();
                     recognition.lang = 'en-IN'; // Support Indian English
-                    recognition.onstart = () => toast.success(t('listening') || 'Listening...', { icon: '🎤' });
+                    recognition.continuous = false;
+                    recognition.interimResults = false;
+                    
+                    recognition.onstart = () => {
+                      setIsListening(true);
+                      toast.success(t('listening') || 'Listening...', { icon: '🎤' });
+                    };
                     recognition.onresult = (event) => {
                       const transcript = event.results[0][0].transcript;
-                      setForm(p => ({ ...p, description: p.description + ' ' + transcript }));
+                      setForm(p => ({ ...p, description: p.description ? p.description + ' ' + transcript : transcript }));
                     };
-                    recognition.onerror = () => toast.error('Voice input failed. Please try again.');
+                    recognition.onerror = () => {
+                      setIsListening(false);
+                      toast.error('Voice input failed. Please try again.');
+                    };
+                    recognition.onend = () => {
+                      setIsListening(false);
+                    };
                     recognition.start();
                   }}
-                  className="absolute right-3 top-3 p-3 bg-slate-800 hover:bg-civic-600 text-civic-400 hover:text-white rounded-xl transition-all shadow-lg border border-slate-700 hover:scale-110 active:scale-95"
+                  className={`absolute right-3 top-3 p-3 rounded-xl transition-all shadow-lg border hover:scale-110 active:scale-95 ${
+                    isListening 
+                      ? 'bg-red-500/20 border-red-500/50 text-red-400 animate-pulse' 
+                      : 'bg-slate-800 hover:bg-civic-600 border-slate-700 text-civic-400 hover:text-white'
+                  }`}
                   title={t('voiceInput')}
                 >
-                  <FiMic size={20} className="animate-pulse" />
+                  <FiMic size={20} className={isListening ? 'animate-bounce' : ''} />
                 </button>
               </div>
             </div>

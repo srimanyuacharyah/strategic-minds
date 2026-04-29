@@ -123,7 +123,9 @@ export async function sendNotificationEmail(email, subject, body) {
         icon: '📧',
         style: { border: '1px solid #10b981', padding: '16px', color: '#10b981' },
       });
-      console.warn("EmailJS keys missing. Set VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID, and VITE_EMAILJS_PUBLIC_KEY in .env to send real emails.");
+      // Fallback: actually open the user's email client
+      window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      console.warn("EmailJS keys missing. Set VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID, and VITE_EMAILJS_PUBLIC_KEY in .env to send real emails automatically.");
     }, 1000);
   }
 }
