@@ -26,12 +26,12 @@ In the Render dashboard, go to the **Environment** tab and add the following var
 - `VITE_EMAILJS_SERVICE_ID` (Optional)
 - `VITE_EMAILJS_TEMPLATE_ID` (Optional)
 - `VITE_EMAILJS_PUBLIC_KEY` (Optional)
-- `NODE_VERSION`: `20.0.0` (Recommended)
+- **`NODE_VERSION`**: `22.12.0` (Required for Vite 8)
 
 ## 5. Troubleshooting Build Failures
 If your build fails with "Exit Status 1":
 1.  **Check .npmrc:** I have added a `.npmrc` file to the project to handle dependency conflicts. Ensure this file is pushed to GitHub.
-2.  **Node Version:** Ensure `NODE_VERSION` is set to `20` or higher in the Render Environment tab.
+2.  **Node Version:** You **must** set `NODE_VERSION` to `22.12.0` or higher in the Render Environment tab. Vite 8 requires this version to run its bundler (Rolldown).
 3.  **Logs:** Check the "Deploy" logs in Render. If you see "Out of Memory", you may need to upgrade your Render plan or optimize chunk sizes.
 
 ## 6. Handling Routes (Important!)
